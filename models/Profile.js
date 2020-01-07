@@ -5,7 +5,7 @@ const ProfileSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'user'
 	},
-	bankId: [
+	banks: [
 		{
 			bankId: {
 				type: String,
@@ -23,11 +23,11 @@ const ProfileSchema = new mongoose.Schema({
 				type: Number,
 				required: true
 			},
-			recieverId: {
+			receiverId: {
 				type: String,
 				required: true
 			},
-			recieverName: {
+			receiverName: {
 				type: String,
 				required: true
 			}

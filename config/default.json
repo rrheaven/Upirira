@@ -1,0 +1,4 @@
+{
+	"mongoURI": "mongodb+srv://avikonduru:g3GR3SDnBoJHYR5x@upiriaserver-rfesa.mongodb.net/test?retryWrites=true&w=majority",
+	"jwtSecret": "mysecrettocken"
+}

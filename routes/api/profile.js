@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const config = require('config');
 const auth = require('../../middleware/auth');
-const { check, validationResult } = require('express-validator/check');
+const { check, validationResult } = require('express-validator');
 
 // Models
 const Profile = require('../../models/Profile');
@@ -131,5 +131,59 @@ router.post(
 		}
 	}
 );
+
+// @route    DELETE api/profile/bank/:bank_id
+// @desc     Delete bank from profile
+// @access   Private
+router.delete('/user/bank/:bank_id', auth, async (req, res) => {
+	try {
+		const foundProfile = await Profile.findOne({ user: req.user.id });
+		const bankIds = foundProfile.banks.map(bank => bank._id.toString());
+		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
+		const removeIndex = bankIds.indexOf(req.params.bank_id);
+		if (removeIndex === -1) {
+			return res.status(500).json({ msg: 'Server error' });
+		} else {
+			// theses console logs helped me figure it out
+			console.log('bankIds', bankIds);
+			console.log('typeof bankIds', typeof bankIds);
+			console.log('req.params', req.params);
+			console.log('removed', bankIds.indexOf(req.params.bank_id));
+			foundProfile.banks.splice(removeIndex, 1);
+			await foundProfile.save();
+			return res.status(200).json(foundProfile);
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ msg: 'Server error' });
+	}
+});
+
+// @route    DELETE api/profile/pie/:slice_id
+// @desc     Delete slice from profile
+// @access   Private
+router.delete('/user/pie/:slice_id', auth, async (req, res) => {
+	try {
+		const foundProfile = await Profile.findOne({ user: req.user.id });
+		const pieIds = foundProfile.donationPie.map(pie => pie._id.toString());
+		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
+		const removeIndex = pieIds.indexOf(req.params.slice_id);
+		if (removeIndex === -1) {
+			return res.status(500).json({ msg: 'Server error' });
+		} else {
+			// theses console logs helped me figure it out
+			console.log('bankIds', pieIds);
+			console.log('typeof bankIds', typeof pieIds);
+			console.log('req.params', req.params);
+			console.log('removed', pieIds.indexOf(req.params.bank_id));
+			foundProfile.donationPie.splice(removeIndex, 1);
+			await foundProfile.save();
+			return res.status(200).json(foundProfile);
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ msg: 'Server error' });
+	}
+});
 
 module.exports = router;

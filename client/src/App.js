@@ -3,11 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
 const App = () => {
-	return (
-		<Fragment>
-			<h1>App</h1>
-		</Fragment>
-	);
+	return <Fragment>App</Fragment>;
 };
 
 export default App;

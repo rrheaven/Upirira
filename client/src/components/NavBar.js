@@ -4,12 +4,15 @@ import { LinkContainer } from 'react-router-bootstrap';
 // Bootstrap
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Button from 'react-bootstrap/Button';
 
 const NavBar = () => {
 	return (
 		<Navbar bg='primary' variant='dark'>
 			<LinkContainer to='/'>
-				<Navbar.Brand>Upiria</Navbar.Brand>
+				<Navbar.Brand>
+					<h2>UPIRIA</h2>
+				</Navbar.Brand>
 			</LinkContainer>
 			<Nav className='mr-auto'>
 				<LinkContainer to='/login'>
@@ -27,6 +30,7 @@ const NavBar = () => {
 				<LinkContainer to='/settings'>
 					<Nav.Link>Settings</Nav.Link>
 				</LinkContainer>
+				<Button variant='danger'>Log Out</Button>
 			</Nav>
 		</Navbar>
 	);

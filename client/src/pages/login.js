@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
@@ -53,6 +54,7 @@ const Login = () => {
 							Submit
 						</Button>
 					</Form>
+					<Link to='/register'>Don't have an account? Register instead</Link>
 				</Card.Body>
 			</Card>
 		</Fragment>

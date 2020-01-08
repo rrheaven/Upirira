@@ -1,6 +1,10 @@
 import React, { Fragment } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
+// Redux
+import { Provider } from 'react-redux';
+import store from './redux/store';
+
 // CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -21,21 +25,23 @@ import Container from 'react-bootstrap/Container';
 
 const App = () => {
 	return (
-		<Router>
-			<Fragment>
-				<NavBar />
-				<Route exact path='/' component={Landing} />
-				<Container>
-					<Switch>
-						<Route exact path='/login' component={Login} />
-						<Route exact path='/register' component={Register} />
-						<Route exact path='/dash' component={Dash} />
-						<Route exact path='/search' component={Search} />
-						<Route exact path='/settings' component={Settings} />
-					</Switch>
-				</Container>
-			</Fragment>
-		</Router>
+		<Provider store={store}>
+			<Router>
+				<Fragment>
+					<NavBar />
+					<Route exact path='/' component={Landing} />
+					<Container>
+						<Switch>
+							<Route exact path='/login' component={Login} />
+							<Route exact path='/register' component={Register} />
+							<Route exact path='/dash' component={Dash} />
+							<Route exact path='/search' component={Search} />
+							<Route exact path='/settings' component={Settings} />
+						</Switch>
+					</Container>
+				</Fragment>
+			</Router>
+		</Provider>
 	);
 };
 

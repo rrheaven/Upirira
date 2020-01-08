@@ -9,12 +9,12 @@ import './App.css';
 import NavBar from './components/NavBar';
 
 // Pages
-import landing from './pages/landing';
-import register from './pages/register';
-import login from './pages/login';
-import dash from './pages/dash';
-import search from './pages/search';
-import settings from './pages/settings';
+import Landing from './pages/Landing';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Dash from './pages/Dash';
+import Search from './pages/Search';
+import Settings from './pages/Settings';
 
 // Bootstrap
 import Container from 'react-bootstrap/Container';
@@ -24,14 +24,14 @@ const App = () => {
 		<Router>
 			<Fragment>
 				<NavBar />
-				<Route exact path='/' component={landing} />
+				<Route exact path='/' component={Landing} />
 				<Container>
 					<Switch>
-						<Route exact path='/login' component={login} />
-						<Route exact path='/register' component={register} />
-						<Route exact path='/dash' component={dash} />
-						<Route exact path='/search' component={search} />
-						<Route exact path='/settings' component={settings} />
+						<Route exact path='/login' component={Login} />
+						<Route exact path='/register' component={Register} />
+						<Route exact path='/dash' component={Dash} />
+						<Route exact path='/search' component={Search} />
+						<Route exact path='/settings' component={Settings} />
 					</Switch>
 				</Container>
 			</Fragment>

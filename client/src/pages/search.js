@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
-const search = () => {
+const Search = () => {
 	return <Fragment>search</Fragment>;
 };
 
-export default search;
+export default Search;

@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 // Bootstrap
 import Card from 'react-bootstrap/Card';
 
-const landing = () => {
+const Landing = () => {
 	return (
 		<Fragment>
 			<Card>
@@ -13,4 +13,4 @@ const landing = () => {
 	);
 };
 
-export default landing;
+export default Landing;

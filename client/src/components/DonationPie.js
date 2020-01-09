@@ -1,16 +1,19 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
 
-const Settings = () => {
+const DonationPie = props => {
 	return (
 		<Fragment>
 			<Card>
-				<Card.Body>Settings</Card.Body>
+				<Card.Body>DonationPie</Card.Body>
 			</Card>
 		</Fragment>
 	);
 };
 
-export default Settings;
+DonationPie.propTypes = {};
+
+export default DonationPie;

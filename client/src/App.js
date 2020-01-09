@@ -11,6 +11,7 @@ import './App.css';
 
 // Components
 import NavBar from './components/NavBar';
+import Alerts from './components/Alerts';
 
 // Pages
 import Landing from './pages/Landing';
@@ -31,6 +32,7 @@ const App = () => {
 					<NavBar />
 					<Route exact path='/' component={Landing} />
 					<Container>
+						<Alerts />
 						<Switch>
 							<Route exact path='/login' component={Login} />
 							<Route exact path='/register' component={Register} />

@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 // Bootstrap
@@ -6,7 +7,11 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-const Register = () => {
+//Redux
+import { connect } from 'react-redux';
+import { setAlert } from '../redux/actions/alertAction';
+
+const Register = ({ setAlert }) => {
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -24,7 +29,8 @@ const Register = () => {
 	const onSubmit = async e => {
 		e.preventDefault();
 		if (password !== confirmPassword) {
-			console.log('Passwords dont match');
+			setAlert('Passwords do not match', 'danger');
+			console.log('Passwords do not match');
 		} else {
 			console.log(formData);
 		}
@@ -96,4 +102,14 @@ const Register = () => {
 	);
 };
 
-export default Register;
+Register.propTypes = {
+	setAlert: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({});
+
+const mapActionsToProps = {
+	setAlert
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Register);

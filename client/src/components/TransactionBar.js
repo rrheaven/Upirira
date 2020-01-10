@@ -1,19 +1,22 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 const TransactionBar = props => {
 	return (
 		<Fragment>
 			<Card>
-				<Card.Body>TransactionBar</Card.Body>
+				<ListGroup horizontal>
+					<ListGroup.Item>Today: </ListGroup.Item>
+					<ListGroup.Item>This Week: </ListGroup.Item>
+					<ListGroup.Item>This Month: </ListGroup.Item>
+					<ListGroup.Item>This Year: </ListGroup.Item>
+				</ListGroup>
 			</Card>
 		</Fragment>
 	);
 };
-
-TransactionBar.propTypes = {};
 
 export default TransactionBar;

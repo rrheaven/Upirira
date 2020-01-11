@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
@@ -8,11 +9,11 @@ const { check, validationResult } = require('express-validator');
 // Models
 const User = require('../../models/User');
 
-// @route GET api/users
-// @desc Test Route
+// @route GET api/users/user/register
+// @desc Register user & get token
 // @access Public
 router.post(
-	'/',
+	'/user/register',
 	[
 		check('firstName', 'Name is required')
 			.not()
@@ -44,11 +45,18 @@ router.post(
 					.json({ errors: [{ msg: 'User already exists' }] });
 			}
 
+			const newSlice = {
+				percentage: 100,
+				receiverId: '0',
+				receiverName: 'Usable'
+			};
+
 			user = new User({
 				firstName,
 				lastName,
 				email,
-				password
+				password,
+				donationPie: [newSlice]
 			});
 
 			const salt = await bcrypt.genSalt(10);
@@ -79,5 +87,224 @@ router.post(
 		}
 	}
 );
+
+// @route    POST api/users/user/login
+// @desc     Login user & get token
+// @access   Public
+router.post(
+	'/user/login',
+	[
+		check('email', 'Please include a valid email').isEmail(),
+		check('password', 'Password is required').exists()
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { email, password } = req.body;
+
+		try {
+			let user = await User.findOne({ email });
+
+			if (!user) {
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'Invalid Credentials' }] });
+			}
+
+			const isMatch = await bcrypt.compare(password, user.password);
+
+			if (!isMatch) {
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'Invalid Credentials' }] });
+			}
+
+			const payload = {
+				user: {
+					id: user.id
+				}
+			};
+
+			// TODO: Change expiresIn to 3600 for production
+			jwt.sign(
+				payload,
+				config.get('jwtSecret'),
+				{ expiresIn: 360000 },
+				(err, token) => {
+					if (err) throw err;
+					res.json({ token });
+				}
+			);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server error');
+		}
+	}
+);
+
+// @route    GET users/user
+// @desc     Get auth user
+// @access   Public
+router.get('/user', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id).select('-password');
+		res.json(user);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route    Post api/users/user/bank
+// @desc     Add bank to user profile
+// @access   Private
+router.post(
+	'/user/bank',
+	[
+		auth,
+		[
+			check('bankId', 'Must provide Bank')
+				.not()
+				.isEmpty()
+		]
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { bankId } = req.body;
+		const newBank = { bankId };
+
+		try {
+			const user = await User.findById(req.user.id);
+			user.banks.unshift(newBank);
+
+			await user.save();
+
+			res.json(user);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
+// @route    Post api/users/user/pie
+// @desc     Add/Update pie slice to user profile
+// @access   Private
+router.post(
+	'/user/pie',
+	[
+		auth,
+		[
+			check('percentage', 'Must provide Bank')
+				.not()
+				.isEmpty(),
+			check('receiverId', 'Must provide Bank')
+				.not()
+				.isEmpty(),
+			check('receiverName', 'Must provide Bank')
+				.not()
+				.isEmpty()
+		]
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { percentage, receiverId, receiverName } = req.body;
+		const newSlice = { percentage, receiverId, receiverName };
+
+		try {
+			// Find if user already has same slice
+			let user = await User.findOne({
+				_id: req.user.id,
+				'donationPie.receiverId': newSlice.receiverId
+			});
+
+			if (user) {
+				// If so update
+				user = await User.findOneAndUpdate(
+					{ _id: req.user.id, 'donationPie.receiverId': newSlice.receiverId },
+					{ $set: { 'donationPie.$': newSlice } },
+					{ new: true, upsert: true }
+				);
+			} else {
+				// Otherwise create new slice
+				user = await User.findOne({
+					_id: req.user.id
+				});
+				user.donationPie.unshift(newSlice);
+				await user.save();
+			}
+
+			res.json(user);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
+// @route    DELETE users/user/bank/:bank_id
+// @desc     Delete bank from user profile
+// @access   Private
+router.delete('/user/bank/:bank_id', auth, async (req, res) => {
+	try {
+		const foundUser = await User.findById(req.user.id);
+		const bankIds = foundUser.banks.map(bank => bank._id.toString());
+		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
+		const removeIndex = bankIds.indexOf(req.params.bank_id);
+		if (removeIndex === -1) {
+			return res.status(500).json({ msg: 'Server error' });
+		} else {
+			// theses console logs helped me figure it out
+			console.log('bankIds', bankIds);
+			console.log('typeof bankIds', typeof bankIds);
+			console.log('req.params', req.params);
+			console.log('removed', bankIds.indexOf(req.params.bank_id));
+			foundUser.banks.splice(removeIndex, 1);
+			await foundUser.save();
+			return res.status(200).json(foundUser);
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ msg: 'Server error' });
+	}
+});
+
+// @route    DELETE users/user/pie/:slice_id
+// @desc     Delete slice from profile
+// @access   Private
+router.delete('/user/pie/:slice_id', auth, async (req, res) => {
+	try {
+		const foundUser = await User.findById(req.user.id);
+		const pieIds = foundUser.donationPie.map(pie => pie._id.toString());
+		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
+		const removeIndex = pieIds.indexOf(req.params.slice_id);
+		if (removeIndex === -1) {
+			return res.status(500).json({ msg: 'Server error' });
+		} else {
+			// theses console logs helped me figure it out
+			console.log('bankIds', pieIds);
+			console.log('typeof bankIds', typeof pieIds);
+			console.log('req.params', req.params);
+			console.log('removed', pieIds.indexOf(req.params.bank_id));
+			foundUser.donationPie.splice(removeIndex, 1);
+			await foundUser.save();
+			return res.status(200).json(foundUser);
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ msg: 'Server error' });
+	}
+});
 
 module.exports = router;

@@ -34,22 +34,28 @@ const UserSchema = new mongoose.Schema({
 			}
 		}
 	],
-	donationPie: [
-		{
-			percentage: {
-				type: Number,
-				required: true
-			},
-			receiverId: {
-				type: String,
-				required: true
-			},
-			receiverName: {
-				type: String,
-				required: true
+	donationPie: {
+		availablePercentage: {
+			type: Number,
+			required: true
+		},
+		slices: [
+			{
+				percentage: {
+					type: Number,
+					required: true
+				},
+				receiverId: {
+					type: String,
+					required: true
+				},
+				receiverName: {
+					type: String,
+					required: true
+				}
 			}
-		}
-	]
+		]
+	}
 });
 
 module.exports = User = mongoose.model('user', UserSchema);

@@ -45,10 +45,9 @@ router.post(
 					.json({ errors: [{ msg: 'User already exists' }] });
 			}
 
-			const newSlice = {
-				percentage: 100,
-				receiverId: '0',
-				receiverName: 'Usable'
+			const donationPie = {
+				availablePercentage: 100,
+				slices: []
 			};
 
 			user = new User({
@@ -56,7 +55,7 @@ router.post(
 				lastName,
 				email,
 				password,
-				donationPie: [newSlice]
+				donationPie
 			});
 
 			const salt = await bcrypt.genSalt(10);
@@ -223,29 +222,38 @@ router.post(
 		const newSlice = { percentage, receiverId, receiverName };
 
 		try {
+			let userDefault = await User.findById(req.user.id);
+
+			if (userDefault.donationPie.availablePercentage < newSlice.percentage) {
+				return res.status(400).json({
+					errors: [
+						{ msg: 'Cannot have a percentage greater than the usable space' }
+					]
+				});
+			}
+
 			// Find if user already has same slice
-			let user = await User.findOne({
+			user = await User.findOne({
 				_id: req.user.id,
-				'donationPie.receiverId': newSlice.receiverId
+				'donationPie.slices.receiverId': newSlice.receiverId
 			});
 
 			if (user) {
 				// If so update
-				user = await User.findOneAndUpdate(
-					{ _id: req.user.id, 'donationPie.receiverId': newSlice.receiverId },
-					{ $set: { 'donationPie.$': newSlice } },
+				let user = await User.findOneAndUpdate(
+					{
+						_id: req.user.id,
+						'donationPie.slices.receiverId': newSlice.receiverId
+					},
+					{ $set: { 'donationPie.slices.$': newSlice } },
 					{ new: true, upsert: true }
 				);
+				return res.json(user);
 			} else {
-				// Otherwise create new slice
-				user = await User.findOne({
-					_id: req.user.id
-				});
-				user.donationPie.unshift(newSlice);
-				await user.save();
+				userDefault.donationPie.slices.unshift(newSlice);
+				await userDefault.save();
+				return res.json(userDefault);
 			}
-
-			res.json(user);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -286,7 +294,7 @@ router.delete('/user/bank/:bank_id', auth, async (req, res) => {
 router.delete('/user/pie/:slice_id', auth, async (req, res) => {
 	try {
 		const foundUser = await User.findById(req.user.id);
-		const pieIds = foundUser.donationPie.map(pie => pie._id.toString());
+		const pieIds = foundUser.donationPie.slices.map(pie => pie._id.toString());
 		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
 		const removeIndex = pieIds.indexOf(req.params.slice_id);
 		if (removeIndex === -1) {
@@ -297,7 +305,7 @@ router.delete('/user/pie/:slice_id', auth, async (req, res) => {
 			console.log('typeof bankIds', typeof pieIds);
 			console.log('req.params', req.params);
 			console.log('removed', pieIds.indexOf(req.params.bank_id));
-			foundUser.donationPie.splice(removeIndex, 1);
+			foundUser.donationPie.slices.splice(removeIndex, 1);
 			await foundUser.save();
 			return res.status(200).json(foundUser);
 		}

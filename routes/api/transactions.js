@@ -3,6 +3,8 @@ const router = express.Router();
 const config = require('config');
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
+const _ = require('lodash');
+const moment = require('moment');
 
 // Models
 const Transaction = require('../../models/Transaction');
@@ -158,6 +160,51 @@ router.get('/metrics', auth, async (req, res) => {
 		};
 
 		res.json(transactionMetrics);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route GET api/transactions/week
+// @desc Get user transactions totals for each day for a week
+// @access Private
+router.get('/week', auth, async (req, res) => {
+	WeekDate = getBeginningOfWeekDate();
+	try {
+		const transactions = await Transaction.find(
+			{
+				$and: [{ giverId: req.user.id }, { date: { $gte: WeekDate } }]
+			},
+			{ _id: 0, amount: 1, date: 1 }
+		);
+
+		var weekMaps = [];
+		transactions.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('day')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				weekMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		var graphDates = [];
+		var graphAmounts = [];
+		weekMaps.reverse().forEach(function(weekMap) {
+			graphDates.push(moment(weekMap.date).format('L'));
+			graphAmounts.push(weekMap.amount);
+		});
+
+		const graphInfo = {
+			graphTitle: 'One Week Transactions',
+			graphDates,
+			graphAmounts
+		};
+		res.json(graphInfo);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error');

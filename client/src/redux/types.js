@@ -15,3 +15,8 @@ export const LOGOUT = 'LOGOUT';
 export const SET_METRICS = 'SET_METRICS';
 export const CLEAR_METRICS = 'CLEAR_METRICS';
 export const METRICS_ERROR = 'METRICS_ERROR';
+
+// Graph Reducer
+export const SET_GRAPH = 'SET_GRAPH';
+export const CLEAR_GRAPH = 'CLEAR_GRAPH';
+export const GRAPH_ERROR = 'GRAPH_ERROR';

@@ -1,15 +1,32 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
+
+// Redux
+import { connect } from 'react-redux';
+import { setGraph } from '../redux/actions/profileAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import Button from 'react-bootstrap/Button';
 
-const TransactionGraph = props => {
+const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
+	useEffect(() => {
+		setGraph();
+	}, [setGraph]);
+
+	const options = {
+		legend: {
+			display: false
+		}
+	};
+
 	const data = {
-		labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+		labels: graphData.graphDates,
 		datasets: [
 			{
-				label: 'My First dataset',
+				label: graphData.graphTitle,
 				fill: false,
 				lineTension: 0.1,
 				backgroundColor: 'rgba(75,192,192,0.4)',
@@ -27,7 +44,7 @@ const TransactionGraph = props => {
 				pointHoverBorderWidth: 2,
 				pointRadius: 1,
 				pointHitRadius: 10,
-				data: [65, 59, 80, 81, 56, 55, 40]
+				data: graphData.graphAmounts
 			}
 		]
 	};
@@ -36,11 +53,30 @@ const TransactionGraph = props => {
 		<Fragment>
 			<Card>
 				<Card.Body>
-					<Line data={data} />
+					<Card.Title>{graphData.graphTitle}</Card.Title>
+					<Line data={data} options={options} />
+					<ButtonToolbar>
+						<Button variant='primary'>1 Week</Button>
+						<Button variant='primary'>1 Month</Button>
+						<Button variant='primary'>1 Year</Button>
+					</ButtonToolbar>
 				</Card.Body>
 			</Card>
 		</Fragment>
 	);
 };
 
-export default TransactionGraph;
+TransactionGraph.propTypes = {
+	setGraph: PropTypes.func.isRequired,
+	graph: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+	graph: state.graph
+});
+
+const mapActionsToProps = {
+	setGraph
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(TransactionGraph);

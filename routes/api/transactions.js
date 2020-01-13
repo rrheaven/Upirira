@@ -14,7 +14,8 @@ const {
 	getBeginningOfDayDate,
 	getBeginningOfWeekDate,
 	getBeginningOfMonthDate,
-	getBeginningOfYearDate
+	getBeginningOfYearDate,
+	getDays
 } = require('../../utils/dateFunctions');
 
 // @route GET api/transactions
@@ -171,6 +172,7 @@ router.get('/metrics', auth, async (req, res) => {
 // @access Private
 router.get('/week', auth, async (req, res) => {
 	WeekDate = getBeginningOfWeekDate();
+	var daysOfWeek = getDays(WeekDate, new Date(Date.now()));
 	try {
 		const transactions = await Transaction.find(
 			{
@@ -192,18 +194,162 @@ router.get('/week', auth, async (req, res) => {
 			return res;
 		}, {});
 
+		weekMaps = weekMaps.reverse().concat(daysOfWeek);
+
+		var wMaps = [];
+		weekMaps.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('day')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				wMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		wMaps = wMaps.sort((a, b) => new Date(a.date) - new Date(b.date));
+
 		var graphDates = [];
 		var graphAmounts = [];
-		weekMaps.reverse().forEach(function(weekMap) {
-			graphDates.push(moment(weekMap.date).format('L'));
-			graphAmounts.push(weekMap.amount);
+		wMaps.forEach(function(wMap) {
+			graphDates.push(moment(wMap.date).format('MM/DD'));
+			graphAmounts.push(wMap.amount.toFixed(2));
 		});
 
 		const graphInfo = {
-			graphTitle: 'One Week Transactions',
+			graphTitle: 'By Week Transactions',
 			graphDates,
 			graphAmounts
 		};
+		res.json(graphInfo);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route GET api/transactions/month
+// @desc Get user transactions totals for each day for a month
+// @access Private
+router.get('/month', auth, async (req, res) => {
+	MonthDate = getBeginningOfMonthDate();
+	var daysOfMonth = getDays(MonthDate, new Date(Date.now()));
+	try {
+		const transactions = await Transaction.find(
+			{
+				$and: [{ giverId: req.user.id }, { date: { $gte: MonthDate } }]
+			},
+			{ _id: 0, amount: 1, date: 1 }
+		);
+
+		var monthMaps = [];
+		transactions.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('day')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				monthMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		monthMaps = monthMaps.concat(daysOfMonth);
+
+		var mMaps = [];
+		monthMaps.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('day')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				mMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		mMaps = mMaps.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+		var graphDates = [];
+		var graphAmounts = [];
+		mMaps.forEach(function(mMap) {
+			graphDates.push(moment(mMap.date).format('MM/DD'));
+			graphAmounts.push(mMap.amount.toFixed(2));
+		});
+
+		const graphInfo = {
+			graphTitle: 'By Month Transactions',
+			graphDates,
+			graphAmounts
+		};
+		res.json(graphInfo);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route GET api/transactions/year
+// @desc Get user transactions totals for each month for a year
+// @access Private
+router.get('/year', auth, async (req, res) => {
+	YearDate = getBeginningOfYearDate();
+	var daysOfYear = getDays(YearDate, new Date(Date.now()));
+	try {
+		const transactions = await Transaction.find(
+			{
+				$and: [{ giverId: req.user.id }, { date: { $gte: YearDate } }]
+			},
+			{ _id: 0, amount: 1, date: 1 }
+		);
+
+		var yearMaps = [];
+		transactions.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('month')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				yearMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		yearMaps = yearMaps.concat(daysOfYear);
+
+		var yMaps = [];
+		yearMaps.reduce(function(res, value) {
+			formatedDate = moment(value.date)
+				.startOf('month')
+				.format();
+			if (!res[formatedDate]) {
+				res[formatedDate] = { date: formatedDate, amount: 0 };
+				yMaps.push(res[formatedDate]);
+			}
+			res[formatedDate].amount += value.amount;
+			return res;
+		}, {});
+
+		yMaps = yMaps.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+		var graphDates = [];
+		var graphAmounts = [];
+		yMaps.forEach(function(yMap) {
+			graphDates.push(moment(yMap.date).format('MMMM'));
+			graphAmounts.push(yMap.amount.toFixed(2));
+		});
+
+		const graphInfo = {
+			graphTitle: 'By Yearly Transactions',
+			graphDates,
+			graphAmounts
+		};
+
 		res.json(graphInfo);
 	} catch (err) {
 		console.error(err.message);

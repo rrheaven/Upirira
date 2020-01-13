@@ -9,7 +9,7 @@ import { setMetrics } from '../redux/actions/profileAction';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-const TransactionBar = ({ metrics: { metrics }, setMetrics }) => {
+const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 	useEffect(() => {
 		setMetrics();
 	}, [setMetrics]);
@@ -17,10 +17,28 @@ const TransactionBar = ({ metrics: { metrics }, setMetrics }) => {
 		<Fragment>
 			<Card>
 				<ListGroup horizontal>
-					<ListGroup.Item>Today: {metrics.oneDayTotal}</ListGroup.Item>
-					<ListGroup.Item>This Week: {metrics.oneWeekTotal}</ListGroup.Item>
-					<ListGroup.Item>This Month: {metrics.oneMonthTotal}</ListGroup.Item>
-					<ListGroup.Item>This Year: {metrics.oneYearTotal}</ListGroup.Item>
+					<ListGroup.Item>
+						Today: $
+						{metrics.oneDayTotal && !loading && metrics.oneDayTotal.toFixed(2)}
+					</ListGroup.Item>
+					<ListGroup.Item>
+						This Week: $
+						{metrics.oneWeekTotal &&
+							!loading &&
+							metrics.oneWeekTotal.toFixed(2)}
+					</ListGroup.Item>
+					<ListGroup.Item>
+						This Month: $
+						{metrics.oneMonthTotal &&
+							!loading &&
+							metrics.oneMonthTotal.toFixed(2)}
+					</ListGroup.Item>
+					<ListGroup.Item>
+						This Year: $
+						{metrics.oneYearTotal &&
+							!loading &&
+							metrics.oneYearTotal.toFixed(2)}
+					</ListGroup.Item>
 				</ListGroup>
 			</Card>
 		</Fragment>

@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 exports.getBeginningOfDayDate = () => {
 	let d = new Date();
 	d.setHours(0, 0, 0, 0);
@@ -29,4 +31,18 @@ exports.getBeginningOfYearDate = () => {
 	d.setHours(0, 0, 0, 0);
 	newDate = d.toISOString();
 	return newDate;
+};
+
+exports.getDays = (startDate, stopDate) => {
+	var dateArray = [];
+	var currentDate = moment(startDate);
+	var stopDate = moment(stopDate);
+	while (currentDate <= stopDate) {
+		dateArray.push({
+			date: moment(currentDate).format(),
+			amount: 0
+		});
+		currentDate = moment(currentDate).add(1, 'days');
+	}
+	return dateArray;
 };

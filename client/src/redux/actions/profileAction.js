@@ -38,9 +38,16 @@ export const clearMetrics = () => async dispatch => {
 	}
 };
 
-export const setGraph = () => async dispatch => {
+export const setGraph = (graphType = 'week') => async dispatch => {
 	try {
-		const res = await REST.get('/api/transactions/week');
+		var res = {};
+		if (graphType === 'month') {
+			res = await REST.get('/api/transactions/month');
+		} else if (graphType === 'year') {
+			res = await REST.get('/api/transactions/year');
+		} else {
+			res = await REST.get('/api/transactions/week');
+		}
 		dispatch({
 			type: SET_GRAPH,
 			payload: res.data

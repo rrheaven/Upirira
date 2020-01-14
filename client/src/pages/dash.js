@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 // Components
 import TransactionBar from '../components/TransactionBar';
 import TransactionGraph from '../components/TransactionGraph';
-import DonationPie from '../components/DonationPie';
+import DonationPie from '../components/DonationPie/DonationPie';
 
 const Dash = () => {
 	return (

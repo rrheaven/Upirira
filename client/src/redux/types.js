@@ -20,3 +20,8 @@ export const METRICS_ERROR = 'METRICS_ERROR';
 export const SET_GRAPH = 'SET_GRAPH';
 export const CLEAR_GRAPH = 'CLEAR_GRAPH';
 export const GRAPH_ERROR = 'GRAPH_ERROR';
+
+// Pie Reducer
+export const SET_PIE = 'SET_PIE';
+export const CLEAR_PIE = 'CLEAR_PIE';
+export const PIE_ERROR = 'PIE_ERROR';

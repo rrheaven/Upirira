@@ -222,13 +222,17 @@ router.post(
 		const newSlice = { percentage, receiverId, receiverName };
 
 		try {
+			if (newSlice.percentage < 10) {
+				return res.status(400).json({
+					errors: [{ msg: 'Percentage has to be greater than 10' }]
+				});
+			}
+
 			let userDefault = await User.findById(req.user.id);
 
-			if (userDefault.donationPie.availablePercentage < newSlice.percentage) {
+			if (userDefault.donationPie.slices.length >= 5) {
 				return res.status(400).json({
-					errors: [
-						{ msg: 'Cannot have a percentage greater than the usable space' }
-					]
+					errors: [{ msg: 'Cannot add more recipients' }]
 				});
 			}
 
@@ -240,19 +244,63 @@ router.post(
 
 			if (user) {
 				// If so update
-				let user = await User.findOneAndUpdate(
-					{
-						_id: req.user.id,
-						'donationPie.slices.receiverId': newSlice.receiverId
-					},
-					{ $set: { 'donationPie.slices.$': newSlice } },
-					{ new: true, upsert: true }
-				);
-				return res.json(user);
+
+				const initialSum = user.donationPie.slices
+					.map(slice => slice.percentage)
+					.reduce((a, b) => a + b, 0);
+
+				const initialSlice = user.donationPie.slices.find(function(slice) {
+					return slice.receiverId == newSlice.receiverId;
+				});
+
+				const newSum =
+					initialSum - initialSlice.percentage + newSlice.percentage;
+
+				if (newSum > 100) {
+					return res.status(400).json({
+						errors: [{ msg: 'Overall percentage cannot be over 100' }]
+					});
+				} else {
+					let user = await User.findOneAndUpdate(
+						{
+							_id: req.user.id,
+							'donationPie.slices.receiverId': newSlice.receiverId
+						},
+						{ $set: { 'donationPie.slices.$': newSlice } },
+						{ new: true, upsert: true }
+					);
+					user.donationPie.availablePercentage =
+						user.donationPie.availablePercentage -
+						(newSlice.percentage - initialSlice.percentage);
+					await user.save();
+					return res.json(user);
+				}
 			} else {
-				userDefault.donationPie.slices.unshift(newSlice);
-				await userDefault.save();
-				return res.json(userDefault);
+				if (userDefault.donationPie.availablePercentage < newSlice.percentage) {
+					return res.status(400).json({
+						errors: [
+							{ msg: 'Cannot have a percentage greater than the usable space' }
+						]
+					});
+				}
+
+				const initialSum = userDefault.donationPie.slices
+					.map(slice => slice.percentage)
+					.reduce((a, b) => a + b, 0);
+
+				const addedSum = newSlice.percentage + initialSum;
+
+				if (addedSum > 100) {
+					return res.status(400).json({
+						errors: [{ msg: 'Overall percentage cannot be over 100' }]
+					});
+				} else {
+					userDefault.donationPie.slices.unshift(newSlice);
+					userDefault.donationPie.availablePercentage =
+						userDefault.donationPie.availablePercentage - newSlice.percentage;
+					await userDefault.save();
+					return res.json(userDefault);
+				}
 			}
 		} catch (err) {
 			console.error(err.message);
@@ -300,6 +348,11 @@ router.delete('/user/pie/:slice_id', auth, async (req, res) => {
 		if (removeIndex === -1) {
 			return res.status(500).json({ msg: 'Server error' });
 		} else {
+			const foundSlice = foundUser.donationPie.slices.find(function(slice) {
+				return slice._id == req.params.slice_id;
+			});
+			foundUser.donationPie.availablePercentage =
+				foundUser.donationPie.availablePercentage + foundSlice.percentage;
 			// theses console logs helped me figure it out
 			console.log('bankIds', pieIds);
 			console.log('typeof bankIds', typeof pieIds);
@@ -307,8 +360,49 @@ router.delete('/user/pie/:slice_id', auth, async (req, res) => {
 			console.log('removed', pieIds.indexOf(req.params.bank_id));
 			foundUser.donationPie.slices.splice(removeIndex, 1);
 			await foundUser.save();
+
 			return res.status(200).json(foundUser);
 		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ msg: 'Server error' });
+	}
+});
+
+// @route    GET users/user/pie
+// @desc     Get auth user donation pie
+// @access   Private
+router.get('/user/pie', auth, async (req, res) => {
+	try {
+		let user = await User.findById(req.user.id);
+
+		let userSlices = [];
+		const initialSlice = {
+			sliceName: 'Available',
+			slicePercentage: user.donationPie.availablePercentage
+		};
+		userSlices.push(initialSlice);
+
+		user.donationPie.slices.forEach(function(slice) {
+			userSlices.push({
+				sliceName: slice.receiverName,
+				slicePercentage: slice.percentage
+			});
+		});
+
+		var pieNames = [];
+		var pieAmounts = [];
+		userSlices.forEach(function(slice) {
+			pieNames.push(slice.sliceName);
+			pieAmounts.push(slice.slicePercentage.toFixed(2));
+		});
+
+		const pieInfo = {
+			pieNames,
+			pieAmounts
+		};
+
+		res.json(pieInfo);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ msg: 'Server error' });

@@ -1,14 +1,17 @@
 import REST from '../../api/REST';
-import { setAlert } from './alertAction';
+// import { setAlert } from './alertAction';
 import {
 	SET_METRICS,
 	CLEAR_METRICS,
 	METRICS_ERROR,
 	SET_GRAPH,
 	CLEAR_GRAPH,
-	GRAPH_ERROR
+	GRAPH_ERROR,
+	SET_PIE,
+	CLEAR_PIE,
+	PIE_ERROR
 } from '../types';
-import setAuthToken from '../../utils/setAuthToken';
+// import setAuthToken from '../../utils/setAuthToken';
 
 export const setMetrics = () => async dispatch => {
 	try {
@@ -68,6 +71,34 @@ export const clearGraph = () => async dispatch => {
 	} catch (err) {
 		dispatch({
 			type: GRAPH_ERROR,
+			payload: { msg: err.response.statusText }
+		});
+	}
+};
+
+export const setPie = () => async dispatch => {
+	try {
+		const res = await REST.get('/api/users/user/pie');
+		dispatch({
+			type: SET_PIE,
+			payload: res.data
+		});
+	} catch (err) {
+		dispatch({
+			type: PIE_ERROR,
+			payload: { msg: err.response.statusText }
+		});
+	}
+};
+
+export const clearPie = () => async dispatch => {
+	try {
+		dispatch({
+			type: CLEAR_PIE
+		});
+	} catch (err) {
+		dispatch({
+			type: PIE_ERROR,
 			payload: { msg: err.response.statusText }
 		});
 	}

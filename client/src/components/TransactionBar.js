@@ -7,7 +7,9 @@ import { setMetrics } from '../redux/actions/profileAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 	useEffect(() => {
@@ -16,30 +18,34 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 	return (
 		<Fragment>
 			<Card>
-				<ListGroup horizontal>
-					<ListGroup.Item>
-						Today: $
-						{metrics.oneDayTotal && !loading && metrics.oneDayTotal.toFixed(2)}
-					</ListGroup.Item>
-					<ListGroup.Item>
-						This Week: $
-						{metrics.oneWeekTotal &&
-							!loading &&
-							metrics.oneWeekTotal.toFixed(2)}
-					</ListGroup.Item>
-					<ListGroup.Item>
-						This Month: $
-						{metrics.oneMonthTotal &&
-							!loading &&
-							metrics.oneMonthTotal.toFixed(2)}
-					</ListGroup.Item>
-					<ListGroup.Item>
-						This Year: $
-						{metrics.oneYearTotal &&
-							!loading &&
-							metrics.oneYearTotal.toFixed(2)}
-					</ListGroup.Item>
-				</ListGroup>
+				<Container>
+					<Row>
+						<Col>
+							Today: $
+							{metrics.oneDayTotal &&
+								!loading &&
+								metrics.oneDayTotal.toFixed(2)}
+						</Col>
+						<Col>
+							This Week: $
+							{metrics.oneWeekTotal &&
+								!loading &&
+								metrics.oneWeekTotal.toFixed(2)}
+						</Col>
+						<Col>
+							This Month: $
+							{metrics.oneMonthTotal &&
+								!loading &&
+								metrics.oneMonthTotal.toFixed(2)}
+						</Col>
+						<Col>
+							This Year: $
+							{metrics.oneYearTotal &&
+								!loading &&
+								metrics.oneYearTotal.toFixed(2)}
+						</Col>
+					</Row>
+				</Container>
 			</Card>
 		</Fragment>
 	);

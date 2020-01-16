@@ -23,4 +23,7 @@ const TransactionSchema = new mongoose.Schema({
 	}
 });
 
-module.exports = Profile = mongoose.model('transactions', TransactionSchema);
+module.exports = Transaction = mongoose.model(
+	'transactions',
+	TransactionSchema
+);

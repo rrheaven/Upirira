@@ -6,11 +6,13 @@ import auth from './authReducer';
 import metrics from './metricsReducer';
 import graph from './graphReducer';
 import pie from './pieReducer';
+import receivers from './receiversReducer';
 
 export default combineReducers({
 	alert,
 	auth,
 	metrics,
 	graph,
-	pie
+	pie,
+	receivers
 });

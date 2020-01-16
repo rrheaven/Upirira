@@ -25,3 +25,8 @@ export const GRAPH_ERROR = 'GRAPH_ERROR';
 export const SET_PIE = 'SET_PIE';
 export const CLEAR_PIE = 'CLEAR_PIE';
 export const PIE_ERROR = 'PIE_ERROR';
+
+// Receivers Reducer
+export const SET_RECEIVERS = 'SET_RECEIVERS';
+export const CLEAR_RECEIVERS = 'CLEAR_RECEIVERS';
+export const RECEIVERS_ERROR = 'RECEIVERS_ERROR';

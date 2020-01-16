@@ -1,5 +1,5 @@
 import REST from '../../api/REST';
-// import { setAlert } from './alertAction';
+import { setAlert } from './alertAction';
 import {
 	SET_METRICS,
 	CLEAR_METRICS,
@@ -84,6 +84,12 @@ export const setPie = () => async dispatch => {
 			payload: res.data
 		});
 	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
 		dispatch({
 			type: PIE_ERROR,
 			payload: { msg: err.response.statusText }
@@ -97,6 +103,60 @@ export const clearPie = () => async dispatch => {
 			type: CLEAR_PIE
 		});
 	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
+		dispatch({
+			type: PIE_ERROR,
+			payload: { msg: err.response.statusText }
+		});
+	}
+};
+
+export const updatePieSlice = ({
+	percentage,
+	receiverId,
+	receiverName
+}) => async dispatch => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	};
+
+	const body = JSON.stringify({ percentage, receiverId, receiverName });
+
+	try {
+		await REST.post('/api/users/user/pie', body, config);
+		dispatch(setPie());
+	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
+		dispatch({
+			type: PIE_ERROR,
+			payload: { msg: err.response.statusText }
+		});
+	}
+};
+
+export const deletePieSlice = id => async dispatch => {
+	try {
+		await REST.delete(`/api/users/user/pie/${id}`);
+		dispatch(setPie());
+	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
 		dispatch({
 			type: PIE_ERROR,
 			payload: { msg: err.response.statusText }

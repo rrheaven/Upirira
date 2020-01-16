@@ -379,28 +379,22 @@ router.get('/user/pie', auth, async (req, res) => {
 		let userSlices = [];
 		const initialSlice = {
 			sliceName: 'Available',
-			slicePercentage: user.donationPie.availablePercentage
+			slicePercentage:
+				Math.round(user.donationPie.availablePercentage * 1e2) / 1e2,
+			sliceId: '0'
 		};
 		userSlices.push(initialSlice);
 
 		user.donationPie.slices.forEach(function(slice) {
 			userSlices.push({
 				sliceName: slice.receiverName,
-				slicePercentage: slice.percentage
+				slicePercentage: Math.round(slice.percentage * 1e2) / 1e2,
+				sliceId: slice.receiverId,
+				sliceDB_ID: slice._id
 			});
 		});
 
-		var pieNames = [];
-		var pieAmounts = [];
-		userSlices.forEach(function(slice) {
-			pieNames.push(slice.sliceName);
-			pieAmounts.push(slice.slicePercentage.toFixed(2));
-		});
-
-		const pieInfo = {
-			pieNames,
-			pieAmounts
-		};
+		const pieInfo = userSlices;
 
 		res.json(pieInfo);
 	} catch (error) {

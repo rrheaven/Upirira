@@ -5,16 +5,12 @@ import { Doughnut } from 'react-chartjs-2';
 // Redux
 import { connect } from 'react-redux';
 
-const DonationPieChart = ({
-	pie: {
-		pieData: { pieNames, pieAmounts }
-	}
-}) => {
+const DonationPieChart = ({ pie: { pieData, loading } }) => {
 	const data = {
-		labels: pieNames,
+		labels: loading ? [] : pieData.map(slice => slice.sliceName),
 		datasets: [
 			{
-				data: pieAmounts,
+				data: loading ? [] : pieData.map(slice => slice.slicePercentage),
 				backgroundColor: [
 					'#0074D9',
 					'#FF4136',
@@ -55,7 +51,7 @@ const DonationPieChart = ({
 
 	return (
 		<Fragment>
-			<Doughnut data={data} />
+			{loading && pieData == null ? <h1>Loading</h1> : <Doughnut data={data} />}
 		</Fragment>
 	);
 };

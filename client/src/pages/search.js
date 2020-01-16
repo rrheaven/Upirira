@@ -1,132 +1,63 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
+import PropTypes from 'prop-types';
+
+//Redux
+import { connect } from 'react-redux';
+import { setUnselectedReceivers } from '../redux/actions/receiversAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Image from 'react-bootstrap/Media';
 
-// Icons
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
+// Components
+import Receiver from '../components/Receiver/Receiver';
 
-const Search = () => {
+const Search = ({
+	receivers: { receiversData, loading },
+	setUnselectedReceivers
+}) => {
+	useEffect(() => {
+		setUnselectedReceivers();
+	}, [setUnselectedReceivers]);
+
+	const ReceiverList = loading ? (
+		<h1>Loading</h1>
+	) : (
+		receiversData.map(receiver => (
+			<Fragment key={receiver._id}>
+				<Receiver
+					receiverId={receiver._id}
+					receiverName={receiver.name}
+					receiverDescription={receiver.description}
+					receiverImage={receiver.image}
+					receiverStripe={receiver.stripe}
+				/>
+			</Fragment>
+		))
+	);
+
 	return (
 		<Fragment>
 			<Card>
 				<Card.Body>
 					<Card.Title>Available Recipients: </Card.Title>
-					<Card>
-						<Card.Body>
-							<Container>
-								<Row>
-									<Col sm={2}>
-										<Image
-											src={
-												'https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTQwODQ0Nzc0MjIyNDczMDA2/joe-biden-official-portrait_1600jpg.jpg'
-											}
-											roundedCircle
-										/>
-									</Col>
-									<Col sm={9}>
-										<Row>
-											<Card.Title>Andrew Yang</Card.Title>
-										</Row>
-										<Row>
-											<Card.Text>
-												Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-												sed do eiusmod tempor incididunt ut labore et dolore
-												magna aliqua. Ut enim ad minim veniam, quis nostrud
-												exercitation ullamco laboris nisi ut aliquip ex ea
-												commodo consequat.
-											</Card.Text>
-										</Row>
-									</Col>
-									<Col sm={1}>
-										<Button variant='link'>
-											<FontAwesomeIcon icon={faPlusSquare} size='4x' />
-										</Button>
-									</Col>
-								</Row>
-							</Container>
-						</Card.Body>
-					</Card>
-					<Card>
-						<Card.Body>
-							<Container>
-								<Row>
-									<Col sm={2}>
-										<Image
-											src={
-												'https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTQwODQ0Nzc0MjIyNDczMDA2/joe-biden-official-portrait_1600jpg.jpg'
-											}
-											roundedCircle
-										/>
-									</Col>
-									<Col sm={9}>
-										<Row>
-											<Card.Title>Pete Buttigieg</Card.Title>
-										</Row>
-										<Row>
-											<Card.Text>
-												Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-												sed do eiusmod tempor incididunt ut labore et dolore
-												magna aliqua. Ut enim ad minim veniam, quis nostrud
-												exercitation ullamco laboris nisi ut aliquip ex ea
-												commodo consequat.
-											</Card.Text>
-										</Row>
-									</Col>
-									<Col sm={1}>
-										<Button variant='link'>
-											<FontAwesomeIcon icon={faPlusSquare} size='4x' />
-										</Button>
-									</Col>
-								</Row>
-							</Container>
-						</Card.Body>
-					</Card>
-					<Card>
-						<Card.Body>
-							<Container>
-								<Row>
-									<Col sm={2}>
-										<Image
-											src={
-												'https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTQwODQ0Nzc0MjIyNDczMDA2/joe-biden-official-portrait_1600jpg.jpg'
-											}
-											roundedCircle
-										/>
-									</Col>
-									<Col sm={9}>
-										<Row>
-											<Card.Title>Joe Biden</Card.Title>
-										</Row>
-										<Row>
-											<Card.Text>
-												Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-												sed do eiusmod tempor incididunt ut labore et dolore
-												magna aliqua. Ut enim ad minim veniam, quis nostrud
-												exercitation ullamco laboris nisi ut aliquip ex ea
-												commodo consequat.
-											</Card.Text>
-										</Row>
-									</Col>
-									<Col sm={1}>
-										<Button variant='link'>
-											<FontAwesomeIcon icon={faPlusSquare} size='4x' />
-										</Button>
-									</Col>
-								</Row>
-							</Container>
-						</Card.Body>
-					</Card>
+					{ReceiverList}
 				</Card.Body>
 			</Card>
 		</Fragment>
 	);
 };
 
-export default Search;
+Search.propTypes = {
+	setUnselectedReceivers: PropTypes.func.isRequired,
+	receivers: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+	receivers: state.receivers
+});
+
+const mapActionsToProps = {
+	setUnselectedReceivers
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Search);

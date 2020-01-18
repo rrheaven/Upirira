@@ -157,42 +157,6 @@ router.get('/user', auth, async (req, res) => {
 	}
 });
 
-// @route    Post api/users/user/bank
-// @desc     Add bank to user profile
-// @access   Private
-router.post(
-	'/user/bank',
-	[
-		auth,
-		[
-			check('bankId', 'Must provide Bank')
-				.not()
-				.isEmpty()
-		]
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
-		}
-
-		const { bankId } = req.body;
-		const newBank = { bankId };
-
-		try {
-			const user = await User.findById(req.user.id);
-			user.banks.unshift(newBank);
-
-			await user.save();
-
-			res.json(user);
-		} catch (err) {
-			console.error(err.message);
-			res.status(500).send('Server Error');
-		}
-	}
-);
-
 // @route    Post api/users/user/pie
 // @desc     Add/Update pie slice to user profile
 // @access   Private
@@ -222,6 +186,7 @@ router.post(
 		const newSlice = { percentage, receiverId, receiverName };
 
 		try {
+			newSlice.percentage = Number(newSlice.percentage);
 			if (newSlice.percentage < 10) {
 				return res.status(400).json({
 					errors: [{ msg: 'Percentage has to be greater than 10' }]
@@ -229,12 +194,6 @@ router.post(
 			}
 
 			let userDefault = await User.findById(req.user.id);
-
-			if (userDefault.donationPie.slices.length >= 5) {
-				return res.status(400).json({
-					errors: [{ msg: 'Cannot add more recipients' }]
-				});
-			}
 
 			// Find if user already has same slice
 			user = await User.findOne({
@@ -244,7 +203,6 @@ router.post(
 
 			if (user) {
 				// If so update
-
 				const initialSum = user.donationPie.slices
 					.map(slice => slice.percentage)
 					.reduce((a, b) => a + b, 0);
@@ -276,6 +234,12 @@ router.post(
 					return res.json(user);
 				}
 			} else {
+				if (userDefault.donationPie.slices.length >= 5) {
+					return res.status(400).json({
+						errors: [{ msg: 'Cannot add more recipients' }]
+					});
+				}
+
 				if (userDefault.donationPie.availablePercentage < newSlice.percentage) {
 					return res.status(400).json({
 						errors: [
@@ -288,7 +252,7 @@ router.post(
 					.map(slice => slice.percentage)
 					.reduce((a, b) => a + b, 0);
 
-				const addedSum = newSlice.percentage + initialSum;
+				const addedSum = Number(newSlice.percentage) + initialSum;
 
 				if (addedSum > 100) {
 					return res.status(400).json({
@@ -308,33 +272,6 @@ router.post(
 		}
 	}
 );
-
-// @route    DELETE users/user/bank/:bank_id
-// @desc     Delete bank from user profile
-// @access   Private
-router.delete('/user/bank/:bank_id', auth, async (req, res) => {
-	try {
-		const foundUser = await User.findById(req.user.id);
-		const bankIds = foundUser.banks.map(bank => bank._id.toString());
-		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
-		const removeIndex = bankIds.indexOf(req.params.bank_id);
-		if (removeIndex === -1) {
-			return res.status(500).json({ msg: 'Server error' });
-		} else {
-			// theses console logs helped me figure it out
-			console.log('bankIds', bankIds);
-			console.log('typeof bankIds', typeof bankIds);
-			console.log('req.params', req.params);
-			console.log('removed', bankIds.indexOf(req.params.bank_id));
-			foundUser.banks.splice(removeIndex, 1);
-			await foundUser.save();
-			return res.status(200).json(foundUser);
-		}
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ msg: 'Server error' });
-	}
-});
 
 // @route    DELETE users/user/pie/:slice_id
 // @desc     Delete slice from profile

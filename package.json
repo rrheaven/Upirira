@@ -21,7 +21,8 @@
 		"jsonwebtoken": "^8.5.1",
 		"lodash": "^4.17.15",
 		"moment": "^2.24.0",
-		"mongoose": "^5.8.5"
+		"mongoose": "^5.8.5",
+		"plaid": "^4.3.0"
 	},
 	"devDependencies": {
 		"concurrently": "^5.0.2",

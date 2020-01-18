@@ -31,15 +31,8 @@ const EditSliceModal = props => {
 			receiverName: props.pie_name
 		});
 
-		await props.alerts;
-
-		console.log(
-			props.alerts ? props.alerts.length : 'json_data is null or undefined'
-		);
-
-		if (props.alerts !== null && props.alerts.length > 0) {
+		if (props.alert !== null && props.alert.length !== 0) {
 			console.log('onShow');
-			props.onShow();
 		} else {
 			console.log('onHide');
 			props.onHide();
@@ -81,7 +74,7 @@ const EditSliceModal = props => {
 };
 
 const mapStateToProps = state => ({
-	alerts: state.alert
+	alert: state.alert
 });
 
 const mapActionsToProps = {

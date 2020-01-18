@@ -7,6 +7,7 @@ import metrics from './metricsReducer';
 import graph from './graphReducer';
 import pie from './pieReducer';
 import receivers from './receiversReducer';
+import plaid from './plaidReducer';
 
 export default combineReducers({
 	alert,
@@ -14,5 +15,6 @@ export default combineReducers({
 	metrics,
 	graph,
 	pie,
-	receivers
+	receivers,
+	plaid
 });

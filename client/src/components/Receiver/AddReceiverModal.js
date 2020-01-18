@@ -1,7 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { Redirect } from 'react-router-dom';
 
 // Redux
 import { connect } from 'react-redux';
+import { updatePieSlice } from '../../redux/actions/profileAction';
 
 // Bootstrap
 import Modal from 'react-bootstrap/Modal';
@@ -12,9 +14,48 @@ import Form from 'react-bootstrap/Form';
 import Alerts from '../Alerts';
 
 const AddReceiverModal = props => {
-	let loading = props.auth.loading;
+	const [formData, setFormData] = useState({
+		percentage: null
+	});
+
+	const { percentage } = formData;
+
+	const onChange = e => {
+		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
+
+	const onSubmit = async e => {
+		e.preventDefault();
+
+		console.log({
+			percentage: percentage,
+			receiverId: props.id,
+			receiverName: props.name
+		});
+
+		await props.updatePieSlice(
+			{
+				percentage: percentage,
+				receiverId: props.id,
+				receiverName: props.name
+			},
+			'add'
+		);
+
+		await props.alerts;
+
+		if (props.alerts !== null && props.alerts.length > 0) {
+			console.log('onShow');
+			props.onShow();
+		} else {
+			console.log('onHide');
+			props.onHide();
+			return <Redirect to='/dash' />;
+		}
+	};
+
 	let availablePercentage =
-		!loading &&
+		!props.auth.loading &&
 		props.auth.user &&
 		props.auth.user.donationPie.availablePercentage;
 
@@ -31,7 +72,7 @@ const AddReceiverModal = props => {
 						{`Add: ${props.name}`}
 					</Modal.Title>
 				</Modal.Header>
-				<Form>
+				<Form onSubmit={e => onSubmit(e)}>
 					<Modal.Body>
 						<Alerts />
 						<Form.Group controlId='formGridAddress1'>
@@ -46,9 +87,11 @@ const AddReceiverModal = props => {
 								type='number'
 								placeholder={'Enter percentage'}
 								name='percentage'
+								value={percentage}
+								onChange={e => onChange(e)}
 							/>
 						</Form.Group>
-						<Button onClick={props.onHide}>Close</Button>
+						<Button type='submit'>Confirm</Button>
 					</Modal.Body>
 				</Form>
 			</Modal>
@@ -61,6 +104,6 @@ const mapStateToProps = state => ({
 	auth: state.auth
 });
 
-const mapActionsToProps = {};
+const mapActionsToProps = { updatePieSlice };
 
 export default connect(mapStateToProps, mapActionsToProps)(AddReceiverModal);

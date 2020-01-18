@@ -24,9 +24,15 @@ const UserSchema = new mongoose.Schema({
 	},
 	banks: [
 		{
-			bankId: {
-				type: String,
-				required: true
+			plaidData: {
+				accessToken: {
+					type: String,
+					required: true
+				},
+				itemId: {
+					type: String,
+					required: true
+				}
 			},
 			date: {
 				type: Date,

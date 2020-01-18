@@ -13,6 +13,7 @@ import Receiver from '../components/Receiver/Receiver';
 
 const Search = ({
 	receivers: { receiversData, loading },
+	pie: { pieData },
 	setUnselectedReceivers
 }) => {
 	useEffect(() => {
@@ -21,6 +22,8 @@ const Search = ({
 
 	const ReceiverList = loading ? (
 		<h1>Loading</h1>
+	) : pieData.length >= 6 ? (
+		<h1>Cannot have more than 5 receivers</h1>
 	) : (
 		receiversData.map(receiver => (
 			<Fragment key={receiver._id}>
@@ -53,7 +56,8 @@ Search.propTypes = {
 };
 
 const mapStateToProps = state => ({
-	receivers: state.receivers
+	receivers: state.receivers,
+	pie: state.pie
 });
 
 const mapActionsToProps = {

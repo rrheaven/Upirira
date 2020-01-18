@@ -11,6 +11,8 @@ import {
 	CLEAR_PIE,
 	PIE_ERROR
 } from '../types';
+import { loadUser } from './authAction';
+import { setUnselectedReceivers } from './receiversAction';
 // import setAuthToken from '../../utils/setAuthToken';
 
 export const setMetrics = () => async dispatch => {
@@ -116,11 +118,10 @@ export const clearPie = () => async dispatch => {
 	}
 };
 
-export const updatePieSlice = ({
-	percentage,
-	receiverId,
-	receiverName
-}) => async dispatch => {
+export const updatePieSlice = (
+	{ percentage, receiverId, receiverName },
+	action = 'update'
+) => async dispatch => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json'
@@ -131,7 +132,11 @@ export const updatePieSlice = ({
 
 	try {
 		await REST.post('/api/users/user/pie', body, config);
-		dispatch(setPie());
+		await dispatch(setPie());
+		await dispatch(loadUser());
+		if (action === 'add') {
+			await dispatch(setUnselectedReceivers());
+		}
 	} catch (err) {
 		const errors = err.response.data.errors;
 
@@ -150,6 +155,7 @@ export const deletePieSlice = id => async dispatch => {
 	try {
 		await REST.delete(`/api/users/user/pie/${id}`);
 		dispatch(setPie());
+		dispatch(loadUser());
 	} catch (err) {
 		const errors = err.response.data.errors;
 

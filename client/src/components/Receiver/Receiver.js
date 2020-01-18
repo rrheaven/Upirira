@@ -53,7 +53,9 @@ const Receiver = ({
 			<AddReceiverModel
 				show={modalShow}
 				onHide={() => setModalShow(false)}
+				onShow={() => setModalShow(true)}
 				name={receiverName}
+				id={receiverId}
 			/>
 		</Fragment>
 	);

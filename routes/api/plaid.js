@@ -8,6 +8,7 @@ const moment = require('moment');
 
 // Models
 const User = require('../../models/User');
+const Item = require('../../models/Item');
 
 const PLAID_CLIENT_ID = '5d8c3dcb1489d00016334730';
 const PLAID_SECRET = 'a251c86f54c49f1deb72bf41ee3c3a';
@@ -44,28 +45,67 @@ router.post(
 		const { publicToken } = req.body;
 
 		try {
+			const foundItem = await Item.findOne({ userId: req.user.id });
+
+			if (foundItem) {
+				return res.status(400).json({
+					msg:
+						'User has already registered bank. Delete before adding another one'
+				});
+			}
+
 			// First, receive the public token and set it to a variable
 			const PUBLIC_TOKEN = publicToken;
 
 			// Second, exchange the public token for an access token
 			await client.exchangePublicToken(
-				publicToken,
+				PUBLIC_TOKEN,
 				async (error, tokenResponse) => {
+					if (error != null) {
+						var msg = 'Could not exchange public_token!';
+						console.log(msg + '\n' + JSON.stringify(error));
+						return res.status(400).json({
+							msg: msg
+						});
+					}
+
 					const ACCESS_TOKEN = tokenResponse.access_token;
 					const ITEM_ID = tokenResponse.item_id;
 
-					const plaidData = { accessToken: ACCESS_TOKEN, itemId: ITEM_ID };
+					await client.getItem(ACCESS_TOKEN, async (err, result) => {
+						if (err != null) {
+							return res.status(400).json({
+								msg: err
+							});
+						}
 
-					const newBank = {
-						plaidData: plaidData
-					};
+						const institutionId = result.item.institution_id;
 
-					const user = await User.findById(req.user.id);
-					user.banks.unshift(newBank);
+						await client.getInstitutionById(
+							institutionId,
+							async (err, result) => {
+								if (err != null) {
+									return res.status(400).json({
+										msg: err
+									});
+								}
 
-					await user.save();
+								const institutionName = result.institution.name;
 
-					res.json(user);
+								const newItem = new Item({
+									userId: req.user.id,
+									accessToken: ACCESS_TOKEN,
+									itemId: ITEM_ID,
+									itemName: institutionName,
+									error: false
+								});
+
+								await newItem.save();
+
+								res.json(newItem);
+							}
+						);
+					});
 				}
 			);
 		} catch (err) {
@@ -78,60 +118,194 @@ router.post(
 // @route    DELETE plaid/user/bank/:bank_id
 // @desc     Delete bank from user profile
 // @access   Private
-router.delete('/user/bank/:bank_id', auth, async (req, res) => {
+router.delete('/user/item/:item_id', auth, async (req, res) => {
 	try {
-		const foundUser = await User.findById(req.user.id);
-		const bankIds = foundUser.banks.map(bank => bank._id.toString());
-		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
-		const removeIndex = bankIds.indexOf(req.params.bank_id);
-		if (removeIndex === -1) {
-			return res.status(500).json({ msg: 'Server error' });
-		} else {
-			// theses console logs helped me figure it out
-			console.log('bankIds', bankIds);
-			console.log('typeof bankIds', typeof bankIds);
-			console.log('req.params', req.params);
-			console.log('removed', bankIds.indexOf(req.params.bank_id));
-			foundUser.banks.splice(removeIndex, 1);
-			await foundUser.save();
-			return res.status(200).json(foundUser);
+		const foundItem = await Item.findById(req.params.item_id);
+		if (!foundItem) {
+			return res.status(400).json({
+				msg: 'Item does not exist or has already been deleted'
+			});
 		}
+
+		const ACCESS_TOKEN = foundItem.accessToken;
+
+		await client.removeItem(ACCESS_TOKEN, async (err, result) => {
+			if (err != null) {
+				return res.status(400).json({
+					msg: err
+				});
+			}
+
+			await Item.deleteOne({ _id: req.params.item_id }, err => {
+				if (err) {
+					return res.status(400).json({
+						msg: 'Item does not exist or has already been deleted'
+					});
+				}
+			});
+
+			res.json('Item has been deleted');
+		});
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ msg: 'Server error' });
 	}
 });
 
-// // @route GET api/plaid/transactions
-// // @desc Get Transactions
-// // @access Public
-// router.get('/transactions', async (req, res) => {
-// 	try {
-// 		// Pull transactions for the last 30 days
-// 		let startDate = moment()
-// 			.subtract(30, 'days')
-// 			.format('YYYY-MM-DD');
-// 		let endDate = moment().format('YYYY-MM-DD');
-// 		console.log('made it past variables');
-// 		client.getTransactions(
-// 			ACCESS_TOKEN,
-// 			startDate,
-// 			endDate,
-// 			{
-// 				count: 250,
-// 				offset: 0
-// 			},
-// 			function(error, transactionsResponse) {
-// 				res.json({ transactions: transactionsResponse });
-// 				// TRANSACTIONS LOGGED BELOW!
-// 				// They will show up in the terminal that you are running nodemon in.
-// 				console.log(transactionsResponse);
-// 			}
-// 		);
-// 	} catch (err) {
-// 		console.error(err.message);
-// 		res.status(500).send('Server Error');
-// 	}
-// });
+// @route GET api/plaid/user/items
+// @desc Get registered user items
+// @access Private
+router.get('/user/items', auth, async (req, res) => {
+	try {
+		const foundItem = await Item.findOne({ userId: req.user.id });
+
+		if (!foundItem) {
+			return res.status(400).json({
+				msg: 'User Item does not exist'
+			});
+		}
+
+		res.json(foundItem);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route GET api/plaid/transactions
+// @desc Get Transactions
+// @access Private
+router.get('/transactions', auth, async (req, res) => {
+	try {
+		const foundItem = await Item.findOne({ userId: req.user.id });
+
+		if (!foundItem) {
+			return res.status(400).json({
+				msg: 'User Item does not exist'
+			});
+		}
+
+		const user = await User.findById(req.user.id);
+		const ACCESS_TOKEN = foundItem.accessToken;
+
+		// Pull transactions for the last 30 days
+		let startDate = moment()
+			.subtract(30, 'days')
+			.format('YYYY-MM-DD');
+		let endDate = moment().format('YYYY-MM-DD');
+
+		await client.getTransactions(
+			ACCESS_TOKEN,
+			startDate,
+			endDate,
+			{
+				count: 250,
+				offset: 0
+			},
+			async (error, transactionsResponse) => {
+				if (error != null) {
+					return res.status(400).json({
+						msg: error
+					});
+				} else {
+					let transactionAmounts = [];
+					transactionsResponse.transactions.map(async transaction => {
+						await transactionAmounts.push(transaction.amount);
+					});
+					res.json(transactionAmounts);
+				}
+			}
+		);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route Post api/plaid/webhooks
+// @desc Post plaid item transactions based on update webhook
+// @access Public
+router.post(
+	'/webhooks',
+	[
+		check('webhook_type', 'webhook_type is required')
+			.not()
+			.isEmpty(),
+		check('webhook_code', 'webhook_code is required')
+			.not()
+			.isEmpty(),
+		check('item_id', 'item_id is required')
+			.not()
+			.isEmpty()
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const {
+			webhook_type,
+			webhook_code,
+			item_id,
+			error,
+			new_transactions
+		} = req.body;
+
+		try {
+			if (webhook_type !== 'TRANSACTIONS') {
+				return res.status(400).json({ msg: 'Webhook only for transactions' });
+			}
+
+			if (webhook_code !== 'DEFAULT_UPDATE') {
+				return res
+					.status(400)
+					.json({ msg: 'Webhook only for new transactions' });
+			}
+
+			const foundItem = await Item.findOne({ itemId: item_id });
+
+			if (!foundItem) {
+				return res.status(400).json({
+					msg: 'Item does not exist'
+				});
+			}
+
+			const ACCESS_TOKEN = foundItem.accessToken;
+
+			let startDate = moment(foundItem.dateLastUpdated).format('YYYY-MM-DD');
+			let endDate = moment().format('YYYY-MM-DD');
+
+			await client.getTransactions(
+				ACCESS_TOKEN,
+				startDate,
+				endDate,
+				{
+					count: 250,
+					offset: 0
+				},
+				async (error, transactionsResponse) => {
+					if (error != null) {
+						return res.status(400).json({
+							msg: error
+						});
+					} else {
+						let transactionAmounts = [];
+						transactionsResponse.transactions.map(async transaction => {
+							await transactionAmounts.push(transaction.amount);
+						});
+						foundItem.dateLastUpdated = moment();
+						await foundItem.save();
+
+						res.json(transactionAmounts);
+					}
+				}
+			);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
 
 module.exports = router;

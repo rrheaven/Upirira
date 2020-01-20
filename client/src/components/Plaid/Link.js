@@ -1,33 +1,21 @@
 import React, { Fragment } from 'react';
 import PlaidLink from 'react-plaid-link';
-import REST from '../../api/REST';
 
 // Redux
 import { connect } from 'react-redux';
-import {
-	setPublicToken,
-	setPlaidTransactions
-} from '../../redux/actions/plaidAction';
+import { setPublicToken } from '../../redux/actions/plaidAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
-const Link = ({
-	plaid: { transactionsData },
-	setPublicToken,
-	setPlaidTransactions
-}) => {
+const Link = ({ setPublicToken }) => {
 	const handleOnSuccess = (public_token, metadata) => {
 		// send token to client server
 		setPublicToken(public_token);
 	};
 
 	const handleOnExit = () => {};
-
-	const handleClick = res => {
-		setPlaidTransactions();
-	};
 
 	return (
 		<Fragment>
@@ -38,13 +26,13 @@ const Link = ({
 						env='sandbox'
 						product={['auth', 'transactions']}
 						publicKey='af1c94dd61a2b5afaad2a5023a24ae'
+						webhook='https://webhook.site/d0d9f89c-9b6a-4c5e-9652-19521b4d8160'
 						onExit={handleOnExit}
 						onSuccess={handleOnSuccess}
 						className='test'
 					>
 						Connect your bank
 					</PlaidLink>
-					<Button onClick={handleClick}>Get Transactions</Button>
 				</Card.Body>
 			</Card>
 		</Fragment>
@@ -56,8 +44,7 @@ const mapStateToProps = state => ({
 });
 
 const mapActionsToProps = {
-	setPublicToken,
-	setPlaidTransactions
+	setPublicToken
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Link);

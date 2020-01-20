@@ -32,6 +32,10 @@ const UserSchema = new mongoose.Schema({
 				itemId: {
 					type: String,
 					required: true
+				},
+				error: {
+					type: Boolean,
+					required: true
 				}
 			},
 			date: {

@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import PlaidLink from 'react-plaid-link';
 
 // Redux
@@ -38,6 +39,11 @@ const Link = ({ setPublicToken }) => {
 			</Card>
 		</Fragment>
 	);
+};
+
+Link.propTypes = {
+	plaid: PropTypes.object.isRequired,
+	setPublicToken: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({

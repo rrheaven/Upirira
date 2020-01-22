@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 
 // Redux
 import { connect } from 'react-redux';
@@ -48,6 +49,11 @@ const Item = ({
 			</Card>
 		</Fragment>
 	);
+};
+
+Item.propTypes = {
+	plaid: PropTypes.object.isRequired,
+	deletePlaidItem: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({

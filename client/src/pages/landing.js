@@ -1,9 +1,17 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
+
+//Redux
+import { connect } from 'react-redux';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
 
-const Landing = () => {
+const Landing = ({ isAuthenticated }) => {
+	if (isAuthenticated) {
+		return <Redirect to='/dash' />;
+	}
 	return (
 		<Fragment>
 			<Card className='bg-dark text-white text-center'>
@@ -27,4 +35,12 @@ const Landing = () => {
 	);
 };
 
-export default Landing;
+Landing.propTypes = {
+	isAuthenticated: PropTypes.bool
+};
+
+const mapStateToProps = state => ({
+	isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps)(Landing);

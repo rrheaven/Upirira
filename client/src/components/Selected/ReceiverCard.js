@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 // Redux
 import { connect } from 'react-redux';
-import { addSelected } from '../../redux/actions/profileAction';
+import { deleteSelected } from '../../redux/actions/profileAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
@@ -15,19 +15,15 @@ import Image from 'react-bootstrap/Image';
 
 // Icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
-const Receiver = ({
+const ReceiverCard = ({
 	receiverId,
 	receiverName,
 	receiverDescription,
 	receiverImage,
-	addSelected
+	deleteSelected
 }) => {
-	const handleClick = receiverId => {
-		addSelected({ receiverId: receiverId });
-	};
-
 	return (
 		<Fragment>
 			<Card>
@@ -46,8 +42,11 @@ const Receiver = ({
 								</Row>
 							</Col>
 							<Col sm={1}>
-								<Button variant='link' onClick={() => handleClick(receiverId)}>
-									<FontAwesomeIcon icon={faPlusSquare} size='4x' />
+								<Button
+									variant='link'
+									onClick={() => deleteSelected(receiverId)}
+								>
+									<FontAwesomeIcon icon={faTrashAlt} size='4x' color='red' />
 								</Button>
 							</Col>
 						</Row>
@@ -58,14 +57,16 @@ const Receiver = ({
 	);
 };
 
-Receiver.propTypes = {
+ReceiverCard.propTypes = {
 	receiverId: PropTypes.string.isRequired,
 	receiverName: PropTypes.string.isRequired,
 	receiverDescription: PropTypes.string.isRequired,
 	receiverImage: PropTypes.string.isRequired,
-	addSelected: PropTypes.func.isRequired
+	deleteSelected: PropTypes.func.isRequired
 };
 
-const mapActionsToProps = { addSelected };
+const mapActionsToProps = {
+	deleteSelected
+};
 
-export default connect(null, mapActionsToProps)(Receiver);
+export default connect(null, mapActionsToProps)(ReceiverCard);

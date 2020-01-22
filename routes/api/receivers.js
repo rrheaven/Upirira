@@ -126,24 +126,4 @@ router.put(
 	}
 );
 
-// @route GET api/receivers/user/unselected
-// @desc Get all unselected receivers for a user
-// @access Private
-router.get('/user/unselected', auth, async (req, res) => {
-	try {
-		const user = await User.findById(req.user.id);
-		const receivers = await Receiver.find();
-		const pieSliceIds = user.donationPie.slices.map(slice => slice.receiverId);
-
-		const unselectedReceivers = receivers.filter(
-			receiver => !pieSliceIds.includes(receiver._id)
-		);
-
-		res.json(unselectedReceivers);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server Error');
-	}
-});
-
 module.exports = router;

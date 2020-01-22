@@ -11,7 +11,11 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
 
-const NavBar = ({ auth: { isAuthenticated, loading }, logout }) => {
+const NavBar = ({
+	auth: { isAuthenticated, loading },
+	selected: { selectedReceiver },
+	logout
+}) => {
 	const authLinks = (
 		<Fragment>
 			<LinkContainer to='/dash'>
@@ -19,13 +23,15 @@ const NavBar = ({ auth: { isAuthenticated, loading }, logout }) => {
 					<h2>UPIRIA</h2>
 				</Navbar.Brand>
 			</LinkContainer>
-			<Nav className='mr-auto'>
+			<Nav className='ml-auto'>
 				<LinkContainer to='/dash'>
 					<Nav.Link>Dash</Nav.Link>
 				</LinkContainer>
-				<LinkContainer to='/search'>
-					<Nav.Link>Search</Nav.Link>
-				</LinkContainer>
+				{!selectedReceiver && (
+					<LinkContainer to='/search'>
+						<Nav.Link>Search</Nav.Link>
+					</LinkContainer>
+				)}
 				<LinkContainer to='/settings'>
 					<Nav.Link>Settings</Nav.Link>
 				</LinkContainer>
@@ -43,7 +49,7 @@ const NavBar = ({ auth: { isAuthenticated, loading }, logout }) => {
 					<h2>UPIRIA</h2>
 				</Navbar.Brand>
 			</LinkContainer>
-			<Nav className='mr-auto'>
+			<Nav className='ml-auto'>
 				<LinkContainer to='/login'>
 					<Nav.Link>Login</Nav.Link>
 				</LinkContainer>
@@ -55,7 +61,7 @@ const NavBar = ({ auth: { isAuthenticated, loading }, logout }) => {
 	);
 
 	return (
-		<Navbar bg='primary' variant='dark'>
+		<Navbar bg='primary' variant='dark' sticky='top'>
 			{!loading && (
 				<Fragment>{isAuthenticated ? authLinks : guestLinks}</Fragment>
 			)}
@@ -69,7 +75,8 @@ NavBar.propTypes = {
 };
 
 const mapStateToProps = state => ({
-	auth: state.auth
+	auth: state.auth,
+	selected: state.selected
 });
 
 const mapActionsToProps = {

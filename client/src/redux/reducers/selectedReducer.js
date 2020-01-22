@@ -1,7 +1,7 @@
-import { SET_PIE, CLEAR_PIE, PIE_ERROR } from '../types';
+import { SET_SELECTED, CLEAR_SELECTED, SELECTED_ERROR } from '../types';
 
 const initialState = {
-	pieData: null,
+	selectedReceiver: null,
 	loading: true,
 	errors: false
 };
@@ -10,21 +10,21 @@ export default function(state = initialState, action) {
 	const { type, payload } = action;
 
 	switch (type) {
-		case SET_PIE:
+		case SET_SELECTED:
 			return {
 				...state,
 				loading: false,
 				errors: false,
-				pieData: payload
+				selectedReceiver: payload
 			};
-		case CLEAR_PIE:
+		case CLEAR_SELECTED:
 			return {
 				...state,
 				loading: false,
 				errors: false,
-				pieData: null
+				selectedReceiver: null
 			};
-		case PIE_ERROR:
+		case SELECTED_ERROR:
 			return {
 				...state,
 				errors: payload

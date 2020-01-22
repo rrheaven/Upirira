@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
 
 //Redux
 import { connect } from 'react-redux';
-import { setUnselectedReceivers } from '../redux/actions/receiversAction';
+import { setReceivers } from '../redux/actions/receiversAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
@@ -13,17 +14,21 @@ import Receiver from '../components/Receiver/Receiver';
 
 const Search = ({
 	receivers: { receiversData, loading },
-	pie: { pieData },
-	setUnselectedReceivers
+	selected: { selectedReceiver },
+	setReceivers
 }) => {
 	useEffect(() => {
-		setUnselectedReceivers();
-	}, [setUnselectedReceivers]);
+		setReceivers();
+	}, [setReceivers]);
+
+	if (selectedReceiver) {
+		return <Redirect to='/dash' />;
+	}
 
 	const ReceiverList = loading ? (
 		<h1>Loading</h1>
-	) : pieData.length >= 6 ? (
-		<h1>Cannot have more than 5 receivers</h1>
+	) : selectedReceiver !== null ? (
+		<h1>Already have a receiver selected</h1>
 	) : (
 		receiversData.map(receiver => (
 			<Fragment key={receiver._id}>
@@ -32,7 +37,6 @@ const Search = ({
 					receiverName={receiver.name}
 					receiverDescription={receiver.description}
 					receiverImage={receiver.image}
-					receiverStripe={receiver.stripe}
 				/>
 			</Fragment>
 		))
@@ -51,17 +55,17 @@ const Search = ({
 };
 
 Search.propTypes = {
-	setUnselectedReceivers: PropTypes.func.isRequired,
+	setReceivers: PropTypes.func.isRequired,
 	receivers: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
 	receivers: state.receivers,
-	pie: state.pie
+	selected: state.selected
 });
 
 const mapActionsToProps = {
-	setUnselectedReceivers
+	setReceivers
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Search);

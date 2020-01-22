@@ -3,14 +3,14 @@ import React, { Fragment } from 'react';
 // Components
 import TransactionBar from '../components/TransactionBar';
 import TransactionGraph from '../components/TransactionGraph';
-import DonationPie from '../components/DonationPie/DonationPie';
+import SelectedReceiver from '../components/Selected/SelectedReceiver';
 
 const Dash = () => {
 	return (
 		<Fragment>
 			<TransactionBar />
 			<TransactionGraph />
-			<DonationPie />
+			<SelectedReceiver />
 		</Fragment>
 	);
 };

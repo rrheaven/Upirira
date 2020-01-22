@@ -17,7 +17,7 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 const Item = ({
 	plaid: {
-		plaidItems: { _id, itemName },
+		plaidItems: { _id, accountName },
 		loading
 	},
 	deletePlaidItem
@@ -33,7 +33,7 @@ const Item = ({
 									{loading ? (
 										<h1>Loading</h1>
 									) : (
-										itemName !== null && <h3>{itemName}</h3>
+										accountName !== null && <h3>{accountName}</h3>
 									)}
 								</Card.Title>
 							</Col>

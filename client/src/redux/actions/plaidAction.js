@@ -8,14 +8,18 @@ import {
 	CLEAR_PLAID_ITEMS
 } from '../types';
 
-export const setPublicToken = publicToken => async dispatch => {
+export const setPublicToken = (
+	publicToken,
+	accountId,
+	name
+) => async dispatch => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json'
 		}
 	};
 
-	const body = JSON.stringify({ publicToken });
+	const body = JSON.stringify({ publicToken, accountId, name });
 
 	try {
 		await REST.post('/api/plaid/auth/public_token', body, config);

@@ -21,11 +21,6 @@ export const SET_GRAPH = 'SET_GRAPH';
 export const CLEAR_GRAPH = 'CLEAR_GRAPH';
 export const GRAPH_ERROR = 'GRAPH_ERROR';
 
-// Pie Reducer
-export const SET_PIE = 'SET_PIE';
-export const CLEAR_PIE = 'CLEAR_PIE';
-export const PIE_ERROR = 'PIE_ERROR';
-
 // Receivers Reducer
 export const SET_RECEIVERS = 'SET_RECEIVERS';
 export const CLEAR_RECEIVERS = 'CLEAR_RECEIVERS';
@@ -38,3 +33,8 @@ export const SET_PLAID_TRANSACTIONS = 'SET_PLAID_TRANSACTIONS';
 export const SET_PLAID_ITEMS = 'SET_PLAID_ITEMS';
 export const CLEAR_PLAID_ITEMS = 'CLEAR_PLAID_ITEMS';
 export const PLAID_ERROR = 'PLAID_ERROR';
+
+// Selected Reducer
+export const SET_SELECTED = 'SET_SELECTED';
+export const CLEAR_SELECTED = 'CLEAR_SELECTED';
+export const SELECTED_ERROR = 'SELECTED_ERROR';

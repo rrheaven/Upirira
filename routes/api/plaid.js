@@ -10,9 +10,9 @@ const moment = require('moment');
 const User = require('../../models/User');
 const Item = require('../../models/Item');
 
-const PLAID_CLIENT_ID = '5d8c3dcb1489d00016334730';
-const PLAID_SECRET = 'a251c86f54c49f1deb72bf41ee3c3a';
-const PLAID_PUBLIC_KEY = 'af1c94dd61a2b5afaad2a5023a24ae';
+const PLAID_CLIENT_ID = '5e2654f912884a00139b98bc';
+const PLAID_SECRET = '2d132c7f7ebe7a5fcc76cccc3b6aad';
+const PLAID_PUBLIC_KEY = '18d9205e9c8060e88c9d25163276e6';
 const PLAID_ENV = 'sandbox';
 
 // Initialize the Plaid client
@@ -33,6 +33,9 @@ router.post(
 		[
 			check('publicToken', 'Must provide Public Token')
 				.not()
+				.isEmpty(),
+			check('accountId', 'Must provide Account Id')
+				.not()
 				.isEmpty()
 		]
 	],
@@ -42,7 +45,7 @@ router.post(
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { publicToken } = req.body;
+		const { publicToken, accountId, name } = req.body;
 
 		try {
 			const foundItem = await Item.findOne({ userId: req.user.id });
@@ -72,40 +75,32 @@ router.post(
 					const ACCESS_TOKEN = tokenResponse.access_token;
 					const ITEM_ID = tokenResponse.item_id;
 
-					await client.getItem(ACCESS_TOKEN, async (err, result) => {
-						if (err != null) {
-							return res.status(400).json({
-								msg: err
-							});
-						}
-
-						const institutionId = result.item.institution_id;
-
-						await client.getInstitutionById(
-							institutionId,
-							async (err, result) => {
-								if (err != null) {
-									return res.status(400).json({
-										msg: err
-									});
-								}
-
-								const institutionName = result.institution.name;
-
-								const newItem = new Item({
-									userId: req.user.id,
-									accessToken: ACCESS_TOKEN,
-									itemId: ITEM_ID,
-									itemName: institutionName,
-									error: false
+					await client.createStripeToken(
+						ACCESS_TOKEN,
+						accountId,
+						async (err, result) => {
+							if (err != null) {
+								return res.status(400).json({
+									msg: err
 								});
-
-								await newItem.save();
-
-								res.json(newItem);
 							}
-						);
-					});
+
+							const bankAccountToken = result.stripe_bank_account_token;
+
+							const newItem = new Item({
+								userId: req.user.id,
+								accessToken: ACCESS_TOKEN,
+								itemId: ITEM_ID,
+								accountName: name,
+								bankAccountToken: bankAccountToken,
+								error: false
+							});
+
+							await newItem.save();
+
+							res.json(newItem);
+						}
+					);
 				}
 			);
 		} catch (err) {

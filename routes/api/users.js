@@ -157,115 +157,54 @@ router.get('/user', auth, async (req, res) => {
 	}
 });
 
-// @route    Post api/users/user/pie
-// @desc     Add/Update pie slice to user profile
+// @route    GET users/user/selectedReceiver
+// @desc     Get auth user's selected receiver
+// @access   Private
+router.get('/user/selectedReceiver', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+		const selectedReceiver = await Receiver.findById(user.selectedReceiverId);
+		res.json(selectedReceiver);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route    POST users/user/selectedReceiver
+// @desc     Post auth user's selected receiver
 // @access   Private
 router.post(
-	'/user/pie',
+	'/user/selectedReceiver',
 	[
 		auth,
 		[
-			check('percentage', 'Must provide Bank')
-				.not()
-				.isEmpty(),
-			check('receiverId', 'Must provide Bank')
-				.not()
-				.isEmpty(),
-			check('receiverName', 'Must provide Bank')
+			check('receiverId', 'Must provide receiverId')
 				.not()
 				.isEmpty()
 		]
 	],
 	async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
-		}
-
-		const { percentage, receiverId, receiverName } = req.body;
-		const newSlice = { percentage, receiverId, receiverName };
-
+		const { receiverId } = req.body;
 		try {
-			newSlice.percentage = Number(newSlice.percentage);
-			if (newSlice.percentage < 10) {
-				return res.status(400).json({
-					errors: [{ msg: 'Percentage has to be greater than 10' }]
-				});
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ errors: errors.array() });
 			}
 
-			let userDefault = await User.findById(req.user.id);
+			const user = await User.findById(req.user.id);
 
-			// Find if user already has same slice
-			user = await User.findOne({
-				_id: req.user.id,
-				'donationPie.slices.receiverId': newSlice.receiverId
-			});
-
-			if (user) {
-				// If so update
-				const initialSum = user.donationPie.slices
-					.map(slice => slice.percentage)
-					.reduce((a, b) => a + b, 0);
-
-				const initialSlice = user.donationPie.slices.find(function(slice) {
-					return slice.receiverId == newSlice.receiverId;
-				});
-
-				const newSum =
-					initialSum - initialSlice.percentage + newSlice.percentage;
-
-				if (newSum > 100) {
-					return res.status(400).json({
-						errors: [{ msg: 'Overall percentage cannot be over 100' }]
-					});
-				} else {
-					let user = await User.findOneAndUpdate(
-						{
-							_id: req.user.id,
-							'donationPie.slices.receiverId': newSlice.receiverId
-						},
-						{ $set: { 'donationPie.slices.$': newSlice } },
-						{ new: true, upsert: true }
-					);
-					user.donationPie.availablePercentage =
-						user.donationPie.availablePercentage -
-						(newSlice.percentage - initialSlice.percentage);
-					await user.save();
-					return res.json(user);
-				}
-			} else {
-				if (userDefault.donationPie.slices.length >= 5) {
-					return res.status(400).json({
-						errors: [{ msg: 'Cannot add more recipients' }]
-					});
-				}
-
-				if (userDefault.donationPie.availablePercentage < newSlice.percentage) {
-					return res.status(400).json({
-						errors: [
-							{ msg: 'Cannot have a percentage greater than the usable space' }
-						]
-					});
-				}
-
-				const initialSum = userDefault.donationPie.slices
-					.map(slice => slice.percentage)
-					.reduce((a, b) => a + b, 0);
-
-				const addedSum = Number(newSlice.percentage) + initialSum;
-
-				if (addedSum > 100) {
-					return res.status(400).json({
-						errors: [{ msg: 'Overall percentage cannot be over 100' }]
-					});
-				} else {
-					userDefault.donationPie.slices.unshift(newSlice);
-					userDefault.donationPie.availablePercentage =
-						userDefault.donationPie.availablePercentage - newSlice.percentage;
-					await userDefault.save();
-					return res.json(userDefault);
-				}
+			if (user.selectedReceiverId) {
+				return res
+					.status(400)
+					.json({ msg: 'A receiver has already been selected' });
 			}
+
+			user.selectedReceiverId = receiverId;
+
+			await user.save();
+
+			res.json(user.selectedReceiverId);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -273,70 +212,37 @@ router.post(
 	}
 );
 
-// @route    DELETE users/user/pie/:slice_id
-// @desc     Delete slice from profile
+// @route    GET users/user/selectedReceiver/:receiver_id
+// @desc     Get auth user's selected receiver
 // @access   Private
-router.delete('/user/pie/:slice_id', auth, async (req, res) => {
+router.delete('/user/selectedReceiver/:receiver_id', auth, async (req, res) => {
 	try {
-		const foundUser = await User.findById(req.user.id);
-		const pieIds = foundUser.donationPie.slices.map(pie => pie._id.toString());
-		// if i dont add .toString() it returns this weird mongoose coreArray and the ids are somehow objects and it still deletes anyway even if you put /experience/5
-		const removeIndex = pieIds.indexOf(req.params.slice_id);
-		if (removeIndex === -1) {
-			return res.status(500).json({ msg: 'Server error' });
-		} else {
-			const foundSlice = foundUser.donationPie.slices.find(function(slice) {
-				return slice._id == req.params.slice_id;
-			});
-			foundUser.donationPie.availablePercentage =
-				foundUser.donationPie.availablePercentage + foundSlice.percentage;
-			// theses console logs helped me figure it out
-			console.log('bankIds', pieIds);
-			console.log('typeof bankIds', typeof pieIds);
-			console.log('req.params', req.params);
-			console.log('removed', pieIds.indexOf(req.params.bank_id));
-			foundUser.donationPie.slices.splice(removeIndex, 1);
-			await foundUser.save();
+		const user = await User.findById(req.user.id);
 
-			return res.status(200).json(foundUser);
+		if (!user.selectedReceiverId) {
+			return res
+				.status(400)
+				.json({ msg: 'No receiver has been selected by user' });
 		}
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ msg: 'Server error' });
-	}
-});
 
-// @route    GET users/user/pie
-// @desc     Get auth user donation pie
-// @access   Private
-router.get('/user/pie', auth, async (req, res) => {
-	try {
-		let user = await User.findById(req.user.id);
+		const receiver = await Receiver.findById(req.params.receiver_id);
+		if (!receiver) {
+			return res.status(400).json({ msg: 'Receiver provided does not exist' });
+		}
 
-		let userSlices = [];
-		const initialSlice = {
-			sliceName: 'Available',
-			slicePercentage:
-				Math.round(user.donationPie.availablePercentage * 1e2) / 1e2,
-			sliceId: '0'
-		};
-		userSlices.push(initialSlice);
-
-		user.donationPie.slices.forEach(function(slice) {
-			userSlices.push({
-				sliceName: slice.receiverName,
-				slicePercentage: Math.round(slice.percentage * 1e2) / 1e2,
-				sliceId: slice.receiverId,
-				sliceDB_ID: slice._id
+		if (user.selectedReceiverId != receiver._id) {
+			return res.status(400).json({
+				msg: 'User selected receiver does not match receiver provided'
 			});
-		});
+		}
 
-		const pieInfo = userSlices;
+		user.selectedReceiverId = undefined;
+		await user.save();
 
-		res.json(pieInfo);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ msg: 'Server error' });
+		res.json('Receiver unselected from user');
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
 	}
 });
 

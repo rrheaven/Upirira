@@ -6,8 +6,22 @@ import Card from 'react-bootstrap/Card';
 const Landing = () => {
 	return (
 		<Fragment>
-			<Card>
-				<Card.Body>This is some text within a card body.</Card.Body>
+			<Card className='bg-dark text-white text-center'>
+				<Card.Img
+					src='https://images.unsplash.com/photo-1569285647999-67fc5a1ff1ad?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80'
+					alt='Card image'
+				/>
+				<Card.ImgOverlay>
+					<Card.Body>
+						<Card.Title>
+							<h1 class='display-1'>OUR MISSON</h1>
+						</Card.Title>
+						<Card.Text>
+							To provide people a better way of supporting local and national
+							political figures
+						</Card.Text>
+					</Card.Body>
+				</Card.ImgOverlay>
 			</Card>
 		</Fragment>
 	);

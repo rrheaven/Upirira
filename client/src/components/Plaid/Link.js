@@ -7,12 +7,13 @@ import { setPublicToken } from '../../redux/actions/plaidAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 
 const Link = ({ setPublicToken }) => {
 	const handleOnSuccess = (public_token, metadata) => {
 		// send token to client server
-		setPublicToken(public_token);
+		const account_id = metadata.account_id;
+		const name = metadata.account.name;
+		setPublicToken(public_token, account_id, name);
 	};
 
 	const handleOnExit = () => {};
@@ -25,7 +26,7 @@ const Link = ({ setPublicToken }) => {
 						clientName='React Plaid Setup'
 						env='sandbox'
 						product={['auth', 'transactions']}
-						publicKey='af1c94dd61a2b5afaad2a5023a24ae'
+						publicKey='18d9205e9c8060e88c9d25163276e6'
 						webhook='https://webhook.site/d0d9f89c-9b6a-4c5e-9652-19521b4d8160'
 						onExit={handleOnExit}
 						onSuccess={handleOnSuccess}

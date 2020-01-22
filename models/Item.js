@@ -13,12 +13,16 @@ const ItemSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	itemName: {
+	accountName: {
 		type: String,
 		required: true
 	},
 	error: {
 		type: Boolean,
+		required: true
+	},
+	bankAccountToken: {
+		type: String,
 		required: true
 	},
 	dateLastUpdated: {

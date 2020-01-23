@@ -5,10 +5,12 @@ const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
 const plaid = require('plaid');
 const moment = require('moment');
+const stripe = require('stripe')('sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm');
 
 // Models
 const User = require('../../models/User');
 const Item = require('../../models/Item');
+const Transaction = require('../../models/Transaction');
 
 const PLAID_CLIENT_ID = '5e2654f912884a00139b98bc';
 const PLAID_SECRET = '2d132c7f7ebe7a5fcc76cccc3b6aad';
@@ -48,6 +50,7 @@ router.post(
 		const { publicToken, accountId, name } = req.body;
 
 		try {
+			const foundUser = await User.findById(req.user.id);
 			const foundItem = await Item.findOne({ userId: req.user.id });
 
 			if (foundItem) {
@@ -87,18 +90,76 @@ router.post(
 
 							const bankAccountToken = result.stripe_bank_account_token;
 
-							const newItem = new Item({
-								userId: req.user.id,
-								accessToken: ACCESS_TOKEN,
-								itemId: ITEM_ID,
-								accountName: name,
-								bankAccountToken: bankAccountToken,
-								error: false
-							});
+							if (foundUser.stripeData.customerId) {
+								await stripe.customers.createSource(
+									foundUser.stripeData.customerId,
+									{
+										source: bankAccountToken
+									},
+									async (err, source) => {
+										if (err != null) {
+											return res.status(400).json({
+												msg: err
+											});
+										}
 
-							await newItem.save();
+										const newItem = new Item({
+											userId: req.user.id,
+											accessToken: ACCESS_TOKEN,
+											itemId: ITEM_ID,
+											accountName: name,
+											bankAccountToken: bankAccountToken,
+											error: false
+										});
+										await newItem.save();
 
-							res.json(newItem);
+										foundUser.stripeData.source = source.id;
+										await foundUser.save();
+
+										res.json({
+											itemData: newItem,
+											userStripeData: newStripeData
+										});
+									}
+								);
+							} else {
+								await stripe.customers.create(
+									{
+										description: 'Example customer',
+										source: bankAccountToken
+									},
+									async (err, customer) => {
+										if (err != null) {
+											return res.status(400).json({
+												msg: err
+											});
+										}
+
+										const newItem = new Item({
+											userId: req.user.id,
+											accessToken: ACCESS_TOKEN,
+											itemId: ITEM_ID,
+											accountName: name,
+											bankAccountToken: bankAccountToken,
+											error: false
+										});
+										await newItem.save();
+
+										newStripeData = {
+											customerId: customer.id,
+											source: customer.sources.data[0].id
+										};
+
+										foundUser.stripeData = newStripeData;
+										await foundUser.save();
+
+										res.json({
+											itemData: newItem,
+											userStripeData: newStripeData
+										});
+									}
+								);
+							}
 						}
 					);
 				}
@@ -116,6 +177,7 @@ router.post(
 router.delete('/user/item/:item_id', auth, async (req, res) => {
 	try {
 		const foundItem = await Item.findById(req.params.item_id);
+		const foundUser = await User.findById(req.user.id);
 		if (!foundItem) {
 			return res.status(400).json({
 				msg: 'Item does not exist or has already been deleted'
@@ -139,7 +201,23 @@ router.delete('/user/item/:item_id', auth, async (req, res) => {
 				}
 			});
 
-			res.json('Item has been deleted');
+			const foundUser = await User.findById(req.user.id);
+
+			await stripe.customers.deleteSource(
+				foundUser.stripeData.customerId,
+				foundUser.stripeData.source,
+				async (err, confirmation) => {
+					if (err) {
+						return res.status(400).json({
+							msg: err
+						});
+					}
+					foundUser.stripeData.source = undefined;
+
+					await foundUser.save();
+					res.json('Item has been deleted');
+				}
+			);
 		});
 	} catch (error) {
 		console.error(error);
@@ -287,12 +365,55 @@ router.post(
 					} else {
 						let transactionAmounts = [];
 						transactionsResponse.transactions.map(async transaction => {
-							await transactionAmounts.push(transaction.amount);
+							if (
+								transaction.amount > 0 &&
+								!Number.isInteger(transaction.amount)
+							) {
+								let diff = Math.ceil(transaction.amount) - transaction.amount;
+								await transactionAmounts.push(diff);
+							}
 						});
 						foundItem.dateLastUpdated = moment();
 						await foundItem.save();
 
-						res.json(transactionAmounts);
+						summedTransactions =
+							(Math.round(summedTransactions * 1e2) / 1e2) * 100;
+
+						const foundUser = await User.findById(req.user.id);
+
+						if (!foundUser.stripeData.customerId) {
+							return res.status(400).json({
+								msg: 'User has not registered an account'
+							});
+						}
+
+						await stripe.charges.create(
+							{
+								amount: summedTransactions,
+								currency: 'usd',
+								customer: foundUser.stripeData.customerId,
+								source: foundUser.stripeData.source,
+								description: 'My First Test Charge (created for API docs)'
+							},
+							async (err, charge) => {
+								if (err != null) {
+									return res.status(400).json({
+										msg: err
+									});
+								}
+
+								const newTransaction = new Transaction({
+									giverId: req.user.id,
+									amount: summedTransactions / 100,
+									receiverId: foundUser.selectedReceiverId,
+									bankId: foundUser.stripeData.source
+								});
+
+								await newTransaction.save();
+
+								res.json(newTransaction);
+							}
+						);
 					}
 				}
 			);
@@ -302,5 +423,102 @@ router.post(
 		}
 	}
 );
+
+// @route POST api/plaid/test/newCharge
+// @desc Post new test charge
+// @access Private
+router.post('/test/newCharge', auth, async (req, res) => {
+	try {
+		const foundItem = await Item.findOne({ userId: req.user.id });
+
+		if (!foundItem) {
+			return res.status(400).json({
+				msg: 'User Item does not exist'
+			});
+		}
+
+		const ACCESS_TOKEN = foundItem.accessToken;
+
+		// Pull transactions for the last 30 days
+		let startDate = moment()
+			.subtract(30, 'days')
+			.format('YYYY-MM-DD');
+		let endDate = moment().format('YYYY-MM-DD');
+
+		await client.getTransactions(
+			ACCESS_TOKEN,
+			startDate,
+			endDate,
+			{
+				count: 250,
+				offset: 0
+			},
+			async (error, transactionsResponse) => {
+				if (error != null) {
+					return res.status(400).json({
+						msg: error
+					});
+				} else {
+					let transactionAmounts = [];
+					transactionsResponse.transactions.map(async transaction => {
+						if (
+							transaction.amount > 0 &&
+							!Number.isInteger(transaction.amount)
+						) {
+							let diff = Math.ceil(transaction.amount) - transaction.amount;
+							await transactionAmounts.push(diff);
+						}
+					});
+					let summedTransactions = transactionAmounts.reduce(
+						(a, b) => a + b,
+						0
+					);
+
+					summedTransactions =
+						(Math.round(summedTransactions * 1e2) / 1e2) * 100;
+
+					const foundUser = await User.findById(req.user.id);
+
+					if (!foundUser.stripeData.customerId) {
+						return res.status(400).json({
+							msg: 'User has not registered an account'
+						});
+					}
+
+					await stripe.charges.create(
+						{
+							amount: summedTransactions,
+							currency: 'usd',
+							customer: foundUser.stripeData.customerId,
+							source: foundUser.stripeData.source,
+							description: 'My First Test Charge (created for API docs)'
+						},
+						async (err, charge) => {
+							if (err != null) {
+								return res.status(400).json({
+									msg: err
+								});
+							}
+
+							const newTransaction = new Transaction({
+								giverId: req.user.id,
+								amount: summedTransactions / 100,
+								receiverId: foundUser.selectedReceiverId,
+								bankId: foundUser.stripeData.source
+							});
+
+							await newTransaction.save();
+
+							res.json(newTransaction);
+						}
+					);
+				}
+			}
+		);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
 
 module.exports = router;

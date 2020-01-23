@@ -22,7 +22,8 @@
 		"lodash": "^4.17.15",
 		"moment": "^2.24.0",
 		"mongoose": "^5.8.5",
-		"plaid": "^4.3.0"
+		"plaid": "^4.3.0",
+		"stripe": "^8.4.1"
 	},
 	"devDependencies": {
 		"concurrently": "^5.0.2",

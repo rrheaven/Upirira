@@ -24,6 +24,16 @@ const UserSchema = new mongoose.Schema({
 	},
 	selectedReceiverId: {
 		type: String
+	},
+	stripeData: {
+		customerId: {
+			type: String,
+			default: null
+		},
+		source: {
+			type: String,
+			default: null
+		}
 	}
 });
 

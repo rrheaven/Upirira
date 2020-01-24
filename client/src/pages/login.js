@@ -35,7 +35,10 @@ const Login = ({ login, isAuthenticated }) => {
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='my-5 p-2 shadow-sm'>
+				<Card.Header style={{ 'background-color': 'white' }}>
+					<h3>Login</h3>
+				</Card.Header>
 				<Card.Body>
 					<Form onSubmit={e => onSubmit(e)}>
 						<Form.Group controlId='formBasicEmail'>
@@ -60,11 +63,13 @@ const Login = ({ login, isAuthenticated }) => {
 							/>
 						</Form.Group>
 
-						<Button variant='primary' type='submit'>
+						<Button variant='primary btn-block' type='submit' className='mt-4'>
 							Submit
 						</Button>
 					</Form>
-					<Link to='/register'>Don't have an account? Register instead</Link>
+					<div className='mt-3'>
+						<Link to='/register'>Don't have an account? Register instead</Link>
+					</div>
 				</Card.Body>
 			</Card>
 		</Fragment>

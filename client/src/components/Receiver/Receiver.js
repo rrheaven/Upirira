@@ -30,7 +30,7 @@ const Receiver = ({
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='my-3 shadow-sm'>
 				<Card.Body>
 					<Container>
 						<Row>
@@ -46,7 +46,11 @@ const Receiver = ({
 								</Row>
 							</Col>
 							<Col sm={1}>
-								<Button variant='link' onClick={() => handleClick(receiverId)}>
+								<Button
+									variant='link'
+									onClick={() => handleClick(receiverId)}
+									className='mt-4 mb-1'
+								>
 									<FontAwesomeIcon icon={faPlusSquare} size='4x' />
 								</Button>
 							</Col>

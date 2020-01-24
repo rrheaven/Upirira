@@ -25,12 +25,12 @@ const Item = ({
 }) => {
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm'>
 				<Card.Body>
 					<Container>
 						<Row>
 							<Col sm={11}>
-								<Card.Title>
+								<Card.Title className='my-2'>
 									{loading ? (
 										<h1>Loading</h1>
 									) : (
@@ -40,7 +40,7 @@ const Item = ({
 							</Col>
 							<Col sm={1}>
 								<Button variant='link' onClick={() => deletePlaidItem(_id)}>
-									<FontAwesomeIcon icon={faTrashAlt} size='lg' color='red' />
+									<FontAwesomeIcon icon={faTrashAlt} size='2x' color='red' />
 								</Button>
 							</Col>
 						</Row>

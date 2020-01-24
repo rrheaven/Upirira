@@ -21,7 +21,7 @@ const Link = ({ setPublicToken }) => {
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm'>
 				<Card.Body>
 					<PlaidLink
 						clientName='React Plaid Setup'

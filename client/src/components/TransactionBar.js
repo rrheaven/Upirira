@@ -17,7 +17,7 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 	}, [setMetrics]);
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm p-3 my-3'>
 				<Container>
 					<Row>
 						<Col>

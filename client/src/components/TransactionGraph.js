@@ -80,15 +80,16 @@ const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm my-3'>
 				<Card.Body>
 					<Card.Title>{graphData.graphTitle}:</Card.Title>
 					<Line data={data} options={options} />
-					<ButtonToolbar>
+					<ButtonToolbar className='my-2'>
 						<Button
 							variant='primary'
 							onClick={handleWeeklyClick}
 							disabled={weekLoading}
+							className='mr-1'
 						>
 							Weekly
 						</Button>
@@ -96,6 +97,7 @@ const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
 							variant='primary'
 							onClick={handleMonthlyClick}
 							disabled={monthLoading}
+							className='mx-1'
 						>
 							Monthly
 						</Button>
@@ -103,6 +105,7 @@ const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
 							variant='primary'
 							onClick={handleYearlyClick}
 							disabled={yearLoading}
+							className='ml-1'
 						>
 							Yearly
 						</Button>

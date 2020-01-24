@@ -32,9 +32,11 @@ const Settings = ({ plaid: { plaidItems, loading }, setPlaidItems }) => {
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm my-3'>
+				<Card.Header style={{ 'background-color': 'white' }}>
+					<h3>Settings</h3>
+				</Card.Header>
 				<Card.Body>
-					<Card.Title>Settings</Card.Title>
 					{!loading && (
 						<Fragment>
 							{plaidItems === null ? registerAccount : registeredAccount}

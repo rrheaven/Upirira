@@ -44,11 +44,11 @@ const Search = ({
 
 	return (
 		<Fragment>
-			<Card>
-				<Card.Body>
-					<Card.Title>Available Recipients: </Card.Title>
-					{ReceiverList}
-				</Card.Body>
+			<Card className='shadow-sm my-3'>
+				<Card.Header style={{ 'background-color': 'white' }}>
+					<h3>Available Recipients:</h3>
+				</Card.Header>
+				<Card.Body>{ReceiverList}</Card.Body>
 			</Card>
 		</Fragment>
 	);

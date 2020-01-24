@@ -26,7 +26,7 @@ const ReceiverCard = ({
 }) => {
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm'>
 				<Card.Body>
 					<Container>
 						<Row>
@@ -45,6 +45,7 @@ const ReceiverCard = ({
 								<Button
 									variant='link'
 									onClick={() => deleteSelected(receiverId)}
+									className='mt-4 mb-1'
 								>
 									<FontAwesomeIcon icon={faTrashAlt} size='4x' color='red' />
 								</Button>

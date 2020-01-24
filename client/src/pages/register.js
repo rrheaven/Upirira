@@ -43,7 +43,10 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='my-5 p-2 shadow-sm'>
+				<Card.Header style={{ 'background-color': 'white' }}>
+					<h3>Register</h3>
+				</Card.Header>
 				<Card.Body>
 					<Form onSubmit={e => onSubmit(e)}>
 						<Form.Group controlId='formBasicFirstName'>
@@ -96,11 +99,13 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								onChange={e => onChange(e)}
 							/>
 						</Form.Group>
-						<Button variant='primary' type='submit'>
+						<Button variant='primary btn-block' type='submit' className='mt-4'>
 							Submit
 						</Button>
 					</Form>
-					<Link to='/login'>Already have an account? Login instead</Link>
+					<div className='mt-3'>
+						<Link to='/login'>Already have an account? Login instead</Link>
+					</div>
 				</Card.Body>
 			</Card>
 		</Fragment>

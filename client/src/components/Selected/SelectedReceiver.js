@@ -49,7 +49,7 @@ const SelectedReceiver = ({
 
 	return (
 		<Fragment>
-			<Card>
+			<Card className='shadow-sm my-3'>
 				{!loading && (
 					<Fragment>{selectedReceiver === null ? select : selected}</Fragment>
 				)}

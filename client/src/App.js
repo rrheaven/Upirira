@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 // Redux
@@ -41,7 +41,7 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<Router>
-				<Fragment>
+				<div style={{ background: '#eceff1' }}>
 					<NavBar />
 					<Route exact path='/' component={Landing} />
 					<Container>
@@ -54,7 +54,7 @@ const App = () => {
 							<PrivateRoute exact path='/settings' component={Settings} />
 						</Switch>
 					</Container>
-				</Fragment>
+				</div>
 			</Router>
 		</Provider>
 	);

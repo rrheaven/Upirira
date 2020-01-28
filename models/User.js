@@ -34,6 +34,11 @@ const UserSchema = new mongoose.Schema({
 			type: String,
 			default: null
 		}
+	},
+	isReceiver: {
+		type: Boolean,
+		default: false,
+		required: true
 	}
 });
 

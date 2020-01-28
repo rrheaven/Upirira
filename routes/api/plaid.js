@@ -118,14 +118,14 @@ router.post(
 
 										res.json({
 											itemData: newItem,
-											userStripeData: newStripeData
+											userStripeData: foundUser.stripeData
 										});
 									}
 								);
 							} else {
 								await stripe.customers.create(
 									{
-										description: 'Example customer',
+										description: 'Upiria Customer',
 										source: bankAccountToken
 									},
 									async (err, customer) => {
@@ -145,7 +145,7 @@ router.post(
 										});
 										await newItem.save();
 
-										newStripeData = {
+										const newStripeData = {
 											customerId: customer.id,
 											source: customer.sources.data[0].id
 										};

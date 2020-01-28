@@ -23,6 +23,8 @@ export const GRAPH_ERROR = 'GRAPH_ERROR';
 
 // Receivers Reducer
 export const SET_RECEIVERS = 'SET_RECEIVERS';
+export const SET_USER_RECEIVER = 'SET_USER_RECEIVER';
+export const SET_RECEIVER_DASH_LINK = 'SET_RECEIVER_DASH_LINK';
 export const CLEAR_RECEIVERS = 'CLEAR_RECEIVERS';
 export const RECEIVERS_ERROR = 'RECEIVERS_ERROR';
 

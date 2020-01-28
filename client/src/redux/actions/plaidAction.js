@@ -1,5 +1,6 @@
 import REST from '../../api/REST';
 import { setAlert } from './alertAction';
+import { loadUser } from './authAction';
 import {
 	SET_PUBLIC_TOKEN,
 	SET_PLAID_TRANSACTIONS,
@@ -29,6 +30,7 @@ export const setPublicToken = (
 		});
 
 		dispatch(setPlaidItems());
+		dispatch(loadUser());
 	} catch (err) {
 		dispatch({
 			type: PLAID_ERROR,
@@ -45,6 +47,7 @@ export const setPlaidTransactions = () => async dispatch => {
 			type: SET_PLAID_TRANSACTIONS,
 			payload: res.data
 		});
+		dispatch(loadUser());
 	} catch (err) {
 		dispatch({
 			type: PLAID_ERROR,
@@ -61,6 +64,7 @@ export const setPlaidItems = () => async dispatch => {
 			type: SET_PLAID_ITEMS,
 			payload: res.data
 		});
+		dispatch(loadUser());
 	} catch (err) {
 		dispatch({
 			type: PLAID_ERROR,
@@ -75,6 +79,7 @@ export const deletePlaidItem = id => async dispatch => {
 		dispatch({
 			type: CLEAR_PLAID_ITEMS
 		});
+		dispatch(loadUser());
 	} catch (err) {
 		const errors = err.response.data.errors;
 

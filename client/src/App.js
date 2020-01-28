@@ -21,6 +21,7 @@ import Login from './pages/Login';
 import Dash from './pages/Dash';
 import Search from './pages/Search';
 import Settings from './pages/Settings';
+import Receiver from './pages/receiverPages/Receiver';
 
 // Bootstrap
 import Container from 'react-bootstrap/Container';
@@ -51,6 +52,7 @@ const App = () => {
 							<Route exact path='/register' component={Register} />
 							<PrivateRoute exact path='/dash' component={Dash} />
 							<PrivateRoute exact path='/search' component={Search} />
+							<PrivateRoute exact path='/receiver' component={Receiver} />
 							<PrivateRoute exact path='/settings' component={Settings} />
 						</Switch>
 					</Container>

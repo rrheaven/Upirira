@@ -11,7 +11,7 @@ import {
 	CLEAR_SELECTED,
 	SELECTED_ERROR
 } from '../types';
-// import { loadUser } from './authAction';
+import { loadUser } from './authAction';
 // import setAuthToken from '../../utils/setAuthToken';
 
 export const setMetrics = () => async dispatch => {
@@ -24,7 +24,7 @@ export const setMetrics = () => async dispatch => {
 	} catch (err) {
 		dispatch({
 			type: METRICS_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -37,7 +37,7 @@ export const clearMetrics = () => async dispatch => {
 	} catch (err) {
 		dispatch({
 			type: METRICS_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -59,7 +59,7 @@ export const setGraph = (graphType = 'week') => async dispatch => {
 	} catch (err) {
 		dispatch({
 			type: GRAPH_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -72,7 +72,7 @@ export const clearGraph = () => async dispatch => {
 	} catch (err) {
 		dispatch({
 			type: GRAPH_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -84,10 +84,11 @@ export const setSelected = () => async dispatch => {
 			type: SET_SELECTED,
 			payload: res.data
 		});
+		dispatch(loadUser());
 	} catch (err) {
 		dispatch({
 			type: SELECTED_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -104,6 +105,7 @@ export const addSelected = ({ receiverId }) => async dispatch => {
 	try {
 		await REST.post('/api/users/user/selectedReceiver', body, config);
 		dispatch(setSelected());
+		dispatch(loadUser());
 	} catch (err) {
 		const errors = err.response.data.errors;
 
@@ -113,7 +115,7 @@ export const addSelected = ({ receiverId }) => async dispatch => {
 
 		dispatch({
 			type: SELECTED_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };
@@ -124,7 +126,7 @@ export const deleteSelected = id => async dispatch => {
 		dispatch({
 			type: CLEAR_SELECTED
 		});
-		// dispatch(setSelected());
+		dispatch(loadUser());
 	} catch (err) {
 		const errors = err.response.data.errors;
 
@@ -134,7 +136,7 @@ export const deleteSelected = id => async dispatch => {
 
 		dispatch({
 			type: SELECTED_ERROR,
-			payload: { msg: err.response.statusText }
+			payload: { msg: err.response }
 		});
 	}
 };

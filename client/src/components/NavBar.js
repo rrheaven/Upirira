@@ -16,11 +16,7 @@ const LogoNavBar = styled(Navbar.Brand)`
 	font-family: 'Montserrat', sans-serif;
 `;
 
-const NavBar = ({
-	auth: { isAuthenticated, loading },
-	selected: { selectedReceiver },
-	logout
-}) => {
+const NavBar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 	const authLinks = (
 		<Fragment>
 			<LinkContainer to='/dash'>
@@ -32,11 +28,19 @@ const NavBar = ({
 				<LinkContainer to='/dash' className='mx-2'>
 					<Nav.Link>Dash</Nav.Link>
 				</LinkContainer>
-				{!selectedReceiver && (
+
+				{user && !user.selectedReceiverId && (
 					<LinkContainer to='/search' className='mx-2'>
 						<Nav.Link>Search</Nav.Link>
 					</LinkContainer>
 				)}
+
+				{user && user.isReceiver && (
+					<LinkContainer to='/receiver' className='mx-2'>
+						<Nav.Link>Receiver</Nav.Link>
+					</LinkContainer>
+				)}
+
 				<LinkContainer to='/settings' className='mx-2'>
 					<Nav.Link>Settings</Nav.Link>
 				</LinkContainer>
@@ -80,8 +84,7 @@ NavBar.propTypes = {
 };
 
 const mapStateToProps = state => ({
-	auth: state.auth,
-	selected: state.selected
+	auth: state.auth
 });
 
 const mapActionsToProps = {

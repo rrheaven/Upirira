@@ -103,7 +103,7 @@ router.post('/receiver/id', auth, async (req, res) => {
 		stripe.oauth
 			.token({
 				grant_type: 'authorization_code',
-				code: 'ac_Gd1XN4uQOytiHU6dkibNqjXJLEp8REim'
+				code: 'ac_Gdg6H4CP95S3RM4j6NT12U1e7NWF32eI'
 			})
 			.then(async response => {
 				// asynchronously called
@@ -156,38 +156,36 @@ router.post('/receiver/dash', auth, async (req, res) => {
 // @route GET api/receivers/receiver/auth
 // @desc Get user auth
 // @access private
-// router.get('/receiver/auth', auth, async (req, res) => {
-// 	try {
-// 		req.session.state = Math.random()
-// 			.toString(36)
-// 			.slice(2);
+router.get('/receiver/auth', auth, async (req, res) => {
+	try {
+		// req.session.state = Math.random()
+		// 	.toString(36)
+		// 	.slice(2);
 
-// 		let parameters = {
-// 			client_id: 'ca_GczqET5WCUcwzeU5oBZPun5CWnm9uvvt',
-// 			state: req.session.state
-// 		};
-// 		parameters = Object.assign(parameters, {
-// 			'stripe_user[business_type]': req.user.type || 'individual',
-// 			'stripe_user[business_name]': req.user.businessName || undefined,
-// 			'stripe_user[first_name]': req.user.firstName || undefined,
-// 			'stripe_user[last_name]': req.user.lastName || undefined,
-// 			'stripe_user[email]': req.user.email || undefined,
-// 			'stripe_user[country]': req.user.country || undefined
-// 			// If we're suggesting this account have the `card_payments` capability,
-// 			// we can pass some additional fields to prefill:
-// 			// 'suggested_capabilities[]': 'card_payments',
-// 			// 'stripe_user[street_address]': req.user.address || undefined,
-// 			// 'stripe_user[city]': req.user.city || undefined,
-// 			// 'stripe_user[zip]': req.user.postalCode || undefined,
-// 			// 'stripe_user[state]': req.user.city || undefined,
-// 		  });
-// 		res.redirect(
-// 			'https://connect.stripe.com/express/oauth/authorize?redirect_uri=https://connect.stripe.com/connect/default/oauth/test&client_id=ca_GczqET5WCUcwzeU5oBZPun5CWnm9uvvt&state=123'
-// 		);
-// 	} catch (err) {
-// 		console.error(err.message);
-// 		res.status(500).send('Server Error');
-// 	}
-// });
+		// let parameters = {
+		// 	client_id: 'ca_GczqET5WCUcwzeU5oBZPun5CWnm9uvvt',
+		// 	state: req.session.state
+		// };
+		// parameters = Object.assign(parameters, {
+		// 	'stripe_user[business_type]': req.user.type || 'individual',
+		// 	'stripe_user[business_name]': req.user.businessName || undefined,
+		// 	'stripe_user[first_name]': req.user.firstName || undefined,
+		// 	'stripe_user[last_name]': req.user.lastName || undefined,
+		// 	'stripe_user[email]': req.user.email || undefined,
+		// 	'stripe_user[country]': req.user.country || undefined
+		// 	// If we're suggesting this account have the `card_payments` capability,
+		// 	// we can pass some additional fields to prefill:
+		// 	// 'suggested_capabilities[]': 'card_payments',
+		// 	// 'stripe_user[street_address]': req.user.address || undefined,
+		// 	// 'stripe_user[city]': req.user.city || undefined,
+		// 	// 'stripe_user[zip]': req.user.postalCode || undefined,
+		// 	// 'stripe_user[state]': req.user.city || undefined,
+		// });
+		res.redirect('https://www.google.com');
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
 
 module.exports = router;

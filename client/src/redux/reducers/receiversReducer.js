@@ -3,7 +3,8 @@ import {
 	SET_USER_RECEIVER,
 	SET_RECEIVER_DASH_LINK,
 	CLEAR_RECEIVERS,
-	RECEIVERS_ERROR
+	RECEIVERS_ERROR,
+	LOGOUT
 } from '../types';
 
 const initialState = {
@@ -37,6 +38,7 @@ export default function(state = initialState, action) {
 			};
 		case CLEAR_RECEIVERS:
 		case RECEIVERS_ERROR:
+		case LOGOUT:
 			return {
 				...state,
 				loading: false,

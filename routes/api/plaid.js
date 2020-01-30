@@ -11,6 +11,7 @@ const stripe = require('stripe')('sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm');
 const User = require('../../models/User');
 const Item = require('../../models/Item');
 const Transaction = require('../../models/Transaction');
+const Receiver = require('../../models/Receiver');
 
 const PLAID_CLIENT_ID = '5e2654f912884a00139b98bc';
 const PLAID_SECRET = '2d132c7f7ebe7a5fcc76cccc3b6aad';
@@ -485,13 +486,27 @@ router.post('/test/newCharge', auth, async (req, res) => {
 						});
 					}
 
+					if (!foundUser.selectedReceiverId) {
+						return res.status(400).json({
+							msg: 'User has not selected an receiver'
+						});
+					}
+
+					const foundReceiver = await Receiver.findById(
+						foundUser.selectedReceiverId
+					);
+
 					await stripe.charges.create(
 						{
 							amount: summedTransactions,
 							currency: 'usd',
 							customer: foundUser.stripeData.customerId,
 							source: foundUser.stripeData.source,
-							description: 'My First Test Charge (created for API docs)'
+							description: 'My First Test Charge (created for API docs)',
+							transfer_data: {
+								amount: summedTransactions,
+								destination: foundReceiver.stripe.stripeAccount
+							}
 						},
 						async (err, charge) => {
 							if (err != null) {

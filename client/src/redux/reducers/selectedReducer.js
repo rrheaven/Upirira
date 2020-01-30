@@ -1,4 +1,4 @@
-import { SET_SELECTED, CLEAR_SELECTED, SELECTED_ERROR } from '../types';
+import { SET_SELECTED, CLEAR_SELECTED, SELECTED_ERROR, LOGOUT } from '../types';
 
 const initialState = {
 	selectedReceiver: null,
@@ -18,6 +18,7 @@ export default function(state = initialState, action) {
 				selectedReceiver: payload
 			};
 		case CLEAR_SELECTED:
+		case LOGOUT:
 			return {
 				...state,
 				loading: false,

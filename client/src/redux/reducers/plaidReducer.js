@@ -4,7 +4,8 @@ import {
 	SET_PLAID_TRANSACTIONS,
 	SET_PLAID_ITEMS,
 	PLAID_ERROR,
-	CLEAR_PLAID_ITEMS
+	CLEAR_PLAID_ITEMS,
+	LOGOUT
 } from '../types';
 
 const initialState = {
@@ -25,6 +26,7 @@ export default function(state = initialState, action) {
 				loading: false
 			};
 		case CLEAR_PLAID_ITEMS:
+		case LOGOUT:
 			return {
 				...state,
 				plaidItems: null,

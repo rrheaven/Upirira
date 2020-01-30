@@ -1,4 +1,4 @@
-import { SET_METRICS, CLEAR_METRICS, METRICS_ERROR } from '../types';
+import { SET_METRICS, CLEAR_METRICS, METRICS_ERROR, LOGOUT } from '../types';
 
 const initialState = {
 	metrics: {
@@ -22,6 +22,7 @@ export default function(state = initialState, action) {
 				metrics: payload
 			};
 		case CLEAR_METRICS:
+		case LOGOUT:
 			return {
 				...state,
 				loading: false,

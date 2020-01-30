@@ -12,23 +12,13 @@ import './App.css';
 
 // Components
 import NavBar from './components/NavBar';
-import Alerts from './components/Alerts';
 
 // Pages
 import Landing from './pages/Landing';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import Dash from './pages/Dash';
-import Search from './pages/Search';
-import Settings from './pages/Settings';
-import Receiver from './pages/receiverPages/Receiver';
-
-// Bootstrap
-import Container from 'react-bootstrap/Container';
 
 // Utils
 import setAuthToken from './utils/setAuthToken';
-import PrivateRoute from './utils/PrivateRoute';
+import Routes from './utils/Routes';
 
 if (localStorage.token) {
 	setAuthToken(localStorage.token);
@@ -44,18 +34,10 @@ const App = () => {
 			<Router>
 				<div style={{ background: '#eceff1' }}>
 					<NavBar />
-					<Route exact path='/' component={Landing} />
-					<Container>
-						<Alerts />
-						<Switch>
-							<Route exact path='/login' component={Login} />
-							<Route exact path='/register' component={Register} />
-							<PrivateRoute exact path='/dash' component={Dash} />
-							<PrivateRoute exact path='/search' component={Search} />
-							<PrivateRoute exact path='/receiver' component={Receiver} />
-							<PrivateRoute exact path='/settings' component={Settings} />
-						</Switch>
-					</Container>
+					<Switch>
+						<Route exact path='/' component={Landing} />
+						<Route component={Routes} />
+					</Switch>
 				</div>
 			</Router>
 		</Provider>

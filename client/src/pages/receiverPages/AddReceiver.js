@@ -10,8 +10,8 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
 const AddReceiver = ({ receiverStripeAuth }) => {
-	const handleClick = e => {
-		receiverStripeAuth();
+	const handleClick = async e => {
+		await receiverStripeAuth();
 	};
 
 	return (

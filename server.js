@@ -10,7 +10,7 @@ connectDB();
 
 // Init Middleware
 app.use(cors());
-app.use(express.json({ extened: false }));
+app.use(express.json({ extended: false }));
 
 // Routes
 app.use('/api/users', require('./routes/api/users'));

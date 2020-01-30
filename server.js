@@ -12,8 +12,6 @@ connectDB();
 app.use(cors());
 app.use(express.json({ extened: false }));
 
-app.get('/', (req, res) => res.send('REST Api Running'));
-
 // Routes
 app.use('/api/users', require('./routes/api/users'));
 app.use('/api/transactions', require('./routes/api/transactions'));

@@ -1,4 +1,4 @@
-import REST from '../../api/REST';
+import axios from 'axios';
 import { setAlert } from './alertAction';
 import {
 	SET_RECEIVERS,
@@ -9,7 +9,7 @@ import {
 
 export const setReceivers = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/receivers/');
+		const res = await axios.get('/api/receivers/');
 		dispatch({
 			type: SET_RECEIVERS,
 			payload: res.data
@@ -30,13 +30,13 @@ export const setReceivers = () => async dispatch => {
 
 export const setUserReceiver = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/receivers/receiver');
+		const res = await axios.get('/api/receivers/receiver');
 		dispatch({
 			type: SET_USER_RECEIVER,
 			payload: res.data
 		});
 
-		const res2 = await REST.post('/api/receivers/receiver/dash');
+		const res2 = await axios.post('/api/receivers/receiver/dash');
 		dispatch({
 			type: SET_RECEIVER_DASH_LINK,
 			payload: res2.data
@@ -70,7 +70,7 @@ export const updateReceiver = (
 	const body = JSON.stringify({ firstName, lastName, description, image });
 
 	try {
-		const res = await REST.post('/api/receivers/receiver', body, config);
+		const res = await axios.post('/api/receivers/receiver', body, config);
 		dispatch(setAlert(res.data.msg, 'success'));
 		dispatch(setUserReceiver());
 	} catch (err) {
@@ -89,7 +89,7 @@ export const updateReceiver = (
 
 export const receiverStripeAuth = () => async dispatch => {
 	try {
-		await REST.get('/api/receivers/receiver/auth');
+		await axios.get('/api/receivers/receiver/auth');
 	} catch (err) {
 		const errors = err.response.data.errors;
 

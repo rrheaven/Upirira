@@ -1,4 +1,4 @@
-import REST from '../../api/REST';
+import axios from 'axios';
 import { setAlert } from './alertAction';
 import {
 	REGISTER_SUCCESS,
@@ -18,7 +18,7 @@ export const loadUser = () => async dispatch => {
 	}
 
 	try {
-		const res = await REST.get('/api/users/user');
+		const res = await axios.get('/api/users/user');
 
 		dispatch({
 			type: USER_LOADED,
@@ -47,7 +47,7 @@ export const register = ({
 	const body = JSON.stringify({ firstName, lastName, email, password });
 
 	try {
-		const res = await REST.post('/api/users/user/register', body, config);
+		const res = await axios.post('/api/users/user/register', body, config);
 
 		dispatch({
 			type: REGISTER_SUCCESS,
@@ -80,7 +80,7 @@ export const login = (email, password) => async dispatch => {
 	const body = JSON.stringify({ email, password });
 
 	try {
-		const res = await REST.post('/api/users/user/login', body, config);
+		const res = await axios.post('/api/users/user/login', body, config);
 
 		dispatch({
 			type: LOGIN_SUCCESS,

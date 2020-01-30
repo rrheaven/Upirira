@@ -1,4 +1,4 @@
-import REST from '../../api/REST';
+import axios from 'axios';
 import { setAlert } from './alertAction';
 import {
 	SET_METRICS,
@@ -16,7 +16,7 @@ import { loadUser } from './authAction';
 
 export const setMetrics = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/transactions/metrics');
+		const res = await axios.get('/api/transactions/metrics');
 		dispatch({
 			type: SET_METRICS,
 			payload: res.data
@@ -46,11 +46,11 @@ export const setGraph = (graphType = 'week') => async dispatch => {
 	try {
 		var res = {};
 		if (graphType === 'month') {
-			res = await REST.get('/api/transactions/month');
+			res = await axios.get('/api/transactions/month');
 		} else if (graphType === 'year') {
-			res = await REST.get('/api/transactions/year');
+			res = await axios.get('/api/transactions/year');
 		} else {
-			res = await REST.get('/api/transactions/week');
+			res = await axios.get('/api/transactions/week');
 		}
 		dispatch({
 			type: SET_GRAPH,
@@ -79,7 +79,7 @@ export const clearGraph = () => async dispatch => {
 
 export const setSelected = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/users/user/selectedReceiver');
+		const res = await axios.get('/api/users/user/selectedReceiver');
 		dispatch({
 			type: SET_SELECTED,
 			payload: res.data
@@ -103,7 +103,7 @@ export const addSelected = ({ receiverId }) => async dispatch => {
 	const body = JSON.stringify({ receiverId });
 
 	try {
-		await REST.post('/api/users/user/selectedReceiver', body, config);
+		await axios.post('/api/users/user/selectedReceiver', body, config);
 		dispatch(setSelected());
 		dispatch(loadUser());
 	} catch (err) {
@@ -122,7 +122,7 @@ export const addSelected = ({ receiverId }) => async dispatch => {
 
 export const deleteSelected = id => async dispatch => {
 	try {
-		await REST.delete(`/api/users/user/selectedReceiver/${id}`);
+		await axios.delete(`/api/users/user/selectedReceiver/${id}`);
 		dispatch({
 			type: CLEAR_SELECTED
 		});

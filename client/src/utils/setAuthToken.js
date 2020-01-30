@@ -1,10 +1,10 @@
-import REST from '../api/REST';
+import axios from 'axios';
 
 const setAuthToken = token => {
 	if (token) {
-		REST.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+		axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
 	} else {
-		delete REST.defaults.headers.common['Authorization'];
+		delete axios.defaults.headers.common['Authorization'];
 	}
 };
 

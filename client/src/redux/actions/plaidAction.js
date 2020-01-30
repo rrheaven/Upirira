@@ -1,4 +1,4 @@
-import REST from '../../api/REST';
+import axios from 'axios';
 import { setAlert } from './alertAction';
 import { loadUser } from './authAction';
 import {
@@ -23,7 +23,7 @@ export const setPublicToken = (
 	const body = JSON.stringify({ publicToken, accountId, name });
 
 	try {
-		await REST.post('/api/plaid/auth/public_token', body, config);
+		await axios.post('/api/plaid/auth/public_token', body, config);
 
 		dispatch({
 			type: SET_PUBLIC_TOKEN
@@ -41,7 +41,7 @@ export const setPublicToken = (
 
 export const setPlaidTransactions = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/plaid/transactions');
+		const res = await axios.get('/api/plaid/transactions');
 
 		dispatch({
 			type: SET_PLAID_TRANSACTIONS,
@@ -58,7 +58,7 @@ export const setPlaidTransactions = () => async dispatch => {
 
 export const setPlaidItems = () => async dispatch => {
 	try {
-		const res = await REST.get('/api/plaid/user/items');
+		const res = await axios.get('/api/plaid/user/items');
 
 		dispatch({
 			type: SET_PLAID_ITEMS,
@@ -75,7 +75,7 @@ export const setPlaidItems = () => async dispatch => {
 
 export const deletePlaidItem = id => async dispatch => {
 	try {
-		await REST.delete(`/api/plaid/user/item/${id}`);
+		await axios.delete(`/api/plaid/user/item/${id}`);
 		dispatch({
 			type: CLEAR_PLAID_ITEMS
 		});

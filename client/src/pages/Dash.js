@@ -5,6 +5,7 @@ import TransactionBar from '../components/TransactionBar';
 import TransactionGraph from '../components/TransactionGraph';
 import SelectedReceiver from '../components/Selected/SelectedReceiver';
 
+// Show Dash
 const Dash = () => {
 	return (
 		<Fragment>

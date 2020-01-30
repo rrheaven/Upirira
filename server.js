@@ -20,7 +20,7 @@ app.use('/api/transactions', require('./routes/api/transactions'));
 app.use('/api/receivers', require('./routes/api/receivers'));
 app.use('/api/plaid', require('./routes/api/plaid'));
 
-// Serve static assets in production
+// Serve static assets in production env
 if (process.env.NODE_ENV === 'production') {
 	// Set static folder
 	app.use(express.static('client/build'));

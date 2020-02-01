@@ -1,4 +1,9 @@
 {
 	"mongoURI": "mongodb+srv://avikonduru:g3GR3SDnBoJHYR5x@upiriaserver-rfesa.mongodb.net/test?retryWrites=true&w=majority",
-	"jwtSecret": "mysecrettocken"
+	"jwtSecret": "mysecrettocken",
+	"PLAID_CLIENT_ID": "5e2654f912884a00139b98bc",
+	"PLAID_SECRET": "2d132c7f7ebe7a5fcc76cccc3b6aad",
+	"PLAID_PUBLIC_KEY": "18d9205e9c8060e88c9d25163276e6",
+	"PLAID_ENV": "sandbox",
+	"STRIPE_TEST_SECRET": "sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm"
 }

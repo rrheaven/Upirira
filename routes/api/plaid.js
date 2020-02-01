@@ -5,7 +5,7 @@ const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
 const plaid = require('plaid');
 const moment = require('moment');
-const stripe = require('stripe')('sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm');
+const stripe = require('stripe')(config.get('STRIPE_TEST_SECRET'));
 
 // Models
 const User = require('../../models/User');
@@ -13,10 +13,10 @@ const Item = require('../../models/Item');
 const Transaction = require('../../models/Transaction');
 const Receiver = require('../../models/Receiver');
 
-const PLAID_CLIENT_ID = '5e2654f912884a00139b98bc';
-const PLAID_SECRET = '2d132c7f7ebe7a5fcc76cccc3b6aad';
-const PLAID_PUBLIC_KEY = '18d9205e9c8060e88c9d25163276e6';
-const PLAID_ENV = 'sandbox';
+const PLAID_CLIENT_ID = config.get('PLAID_CLIENT_ID');
+const PLAID_SECRET = config.get('PLAID_SECRET');
+const PLAID_PUBLIC_KEY = config.get('PLAID_PUBLIC_KEY');
+const PLAID_ENV = config.get('PLAID_ENV');
 
 // Initialize the Plaid client
 const client = new plaid.Client(

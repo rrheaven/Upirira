@@ -11,7 +11,10 @@ import Card from 'react-bootstrap/Card';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Button from 'react-bootstrap/Button';
 
-const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
+// Components
+import LoadingCard from './LoadingCard';
+
+const TransactionGraph = ({ graph: { graphData, loading }, setGraph }) => {
 	const [weekLoading, setWeekLoading] = useState(true);
 	const [monthLoading, setMonthLoading] = useState(false);
 	const [yearLoading, setYearLoading] = useState(false);
@@ -80,38 +83,42 @@ const TransactionGraph = ({ graph: { graphData }, setGraph }) => {
 
 	return (
 		<Fragment>
-			<Card className='shadow-sm my-3'>
-				<Card.Body>
-					<Card.Title>{graphData.graphTitle}:</Card.Title>
-					<Line data={data} options={options} />
-					<ButtonToolbar className='my-2'>
-						<Button
-							variant='primary'
-							onClick={handleWeeklyClick}
-							disabled={weekLoading}
-							className='mr-1'
-						>
-							Weekly
-						</Button>
-						<Button
-							variant='primary'
-							onClick={handleMonthlyClick}
-							disabled={monthLoading}
-							className='mx-1'
-						>
-							Monthly
-						</Button>
-						<Button
-							variant='primary'
-							onClick={handleYearlyClick}
-							disabled={yearLoading}
-							className='ml-1'
-						>
-							Yearly
-						</Button>
-					</ButtonToolbar>
-				</Card.Body>
-			</Card>
+			{loading ? (
+				<LoadingCard />
+			) : (
+				<Card className='shadow-sm my-3'>
+					<Card.Body>
+						<Card.Title>{graphData.graphTitle}:</Card.Title>
+						<Line data={data} options={options} />
+						<ButtonToolbar className='my-2'>
+							<Button
+								variant='primary'
+								onClick={handleWeeklyClick}
+								disabled={weekLoading}
+								className='mr-1'
+							>
+								Weekly
+							</Button>
+							<Button
+								variant='primary'
+								onClick={handleMonthlyClick}
+								disabled={monthLoading}
+								className='mx-1'
+							>
+								Monthly
+							</Button>
+							<Button
+								variant='primary'
+								onClick={handleYearlyClick}
+								disabled={yearLoading}
+								className='ml-1'
+							>
+								Yearly
+							</Button>
+						</ButtonToolbar>
+					</Card.Body>
+				</Card>
+			)}
 		</Fragment>
 	);
 };

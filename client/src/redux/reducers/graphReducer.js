@@ -1,4 +1,10 @@
-import { SET_GRAPH, CLEAR_GRAPH, GRAPH_ERROR, LOGOUT } from '../types';
+import {
+	SET_GRAPH,
+	CLEAR_GRAPH,
+	GRAPH_ERROR,
+	LOADING_GRAPH,
+	LOGOUT
+} from '../types';
 
 const initialState = {
 	graphData: {
@@ -35,6 +41,11 @@ export default function(state = initialState, action) {
 			return {
 				...state,
 				errors: payload
+			};
+		case LOADING_GRAPH:
+			return {
+				...state,
+				loading: true
 			};
 		default:
 			return state;

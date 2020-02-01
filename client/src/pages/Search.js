@@ -11,6 +11,7 @@ import Card from 'react-bootstrap/Card';
 
 // Components
 import Receiver from '../components/Receiver/Receiver';
+import LoadingCard from '../components/LoadingCard';
 
 const Search = ({
 	receivers: { receiversData, loading },
@@ -26,7 +27,7 @@ const Search = ({
 	}
 
 	const ReceiverList = loading ? (
-		<h1>Loading</h1>
+		<LoadingCard />
 	) : selectedReceiver !== null ? (
 		<h1>Already have a receiver selected</h1>
 	) : (

@@ -11,42 +11,49 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+// Components
+import LoadingCard from './LoadingCard';
+
 const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 	useEffect(() => {
 		setMetrics();
 	}, [setMetrics]);
 	return (
 		<Fragment>
-			<Card className='shadow-sm p-3 my-3'>
-				<Container>
-					<Row>
-						<Col>
-							Today: $
-							{metrics.oneDayTotal &&
-								!loading &&
-								metrics.oneDayTotal.toFixed(2)}
-						</Col>
-						<Col>
-							This Week: $
-							{metrics.oneWeekTotal &&
-								!loading &&
-								metrics.oneWeekTotal.toFixed(2)}
-						</Col>
-						<Col>
-							This Month: $
-							{metrics.oneMonthTotal &&
-								!loading &&
-								metrics.oneMonthTotal.toFixed(2)}
-						</Col>
-						<Col>
-							This Year: $
-							{metrics.oneYearTotal &&
-								!loading &&
-								metrics.oneYearTotal.toFixed(2)}
-						</Col>
-					</Row>
-				</Container>
-			</Card>
+			{loading ? (
+				<LoadingCard />
+			) : (
+				<Card className='shadow-sm p-3 my-3'>
+					<Container>
+						<Row>
+							<Col>
+								Today: $
+								{metrics.oneDayTotal &&
+									!loading &&
+									metrics.oneDayTotal.toFixed(2)}
+							</Col>
+							<Col>
+								This Week: $
+								{metrics.oneWeekTotal &&
+									!loading &&
+									metrics.oneWeekTotal.toFixed(2)}
+							</Col>
+							<Col>
+								This Month: $
+								{metrics.oneMonthTotal &&
+									!loading &&
+									metrics.oneMonthTotal.toFixed(2)}
+							</Col>
+							<Col>
+								This Year: $
+								{metrics.oneYearTotal &&
+									!loading &&
+									metrics.oneYearTotal.toFixed(2)}
+							</Col>
+						</Row>
+					</Container>
+				</Card>
+			)}
 		</Fragment>
 	);
 };

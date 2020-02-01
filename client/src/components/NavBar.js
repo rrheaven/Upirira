@@ -11,6 +11,7 @@ import { logout } from '../redux/actions/authAction';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 const LogoNavBar = styled(Navbar.Brand)`
 	font-family: 'Montserrat', sans-serif;
@@ -44,8 +45,13 @@ const NavBar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 				<LinkContainer to='/settings' className='mx-2'>
 					<Nav.Link>Settings</Nav.Link>
 				</LinkContainer>
-				<Button variant='danger' onClick={logout} className='mx-2'>
-					Log Out
+				<Button
+					variant='danger'
+					onClick={logout}
+					className='mx-2'
+					disabled={loading}
+				>
+					{loading ? <Spinner animation='border' /> : 'Log Out'}
 				</Button>
 			</Nav>
 		</Fragment>

@@ -6,7 +6,8 @@ import {
 	SET_PLAID_TRANSACTIONS,
 	PLAID_ERROR,
 	SET_PLAID_ITEMS,
-	CLEAR_PLAID_ITEMS
+	CLEAR_PLAID_ITEMS,
+	LOADING_PLAID
 } from '../types';
 
 export const setPublicToken = (
@@ -23,6 +24,10 @@ export const setPublicToken = (
 	const body = JSON.stringify({ publicToken, accountId, name });
 
 	try {
+		dispatch({
+			type: LOADING_PLAID
+		});
+
 		await axios.post('/api/plaid/auth/public_token', body, config);
 
 		dispatch({

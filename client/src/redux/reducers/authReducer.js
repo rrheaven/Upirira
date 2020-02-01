@@ -5,6 +5,7 @@ import {
 	LOGIN_FAIL,
 	USER_LOADED,
 	AUTH_ERROR,
+	LOADING,
 	LOGOUT
 } from '../types';
 
@@ -45,6 +46,11 @@ export default function(state = initialState, action) {
 				token: null,
 				isAuthenticated: false,
 				loading: false
+			};
+		case LOADING:
+			return {
+				...state,
+				loading: true
 			};
 		default:
 			return state;

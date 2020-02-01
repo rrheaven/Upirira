@@ -2,6 +2,7 @@ import {
 	SET_RECEIVERS,
 	SET_USER_RECEIVER,
 	SET_RECEIVER_DASH_LINK,
+	LOADING_RECEIVERS,
 	CLEAR_RECEIVERS,
 	RECEIVERS_ERROR,
 	LOGOUT
@@ -45,6 +46,11 @@ export default function(state = initialState, action) {
 				receiversData: [],
 				userReceiver: null,
 				dashLink: null
+			};
+		case LOADING_RECEIVERS:
+			return {
+				...state,
+				loading: true
 			};
 		default:
 			return state;

@@ -3,11 +3,14 @@ import { setAlert } from './alertAction';
 import {
 	SET_METRICS,
 	CLEAR_METRICS,
+	LOADING_METRICS,
 	METRICS_ERROR,
 	SET_GRAPH,
+	LOADING_GRAPH,
 	CLEAR_GRAPH,
 	GRAPH_ERROR,
 	SET_SELECTED,
+	LOADING_SELECTED,
 	CLEAR_SELECTED,
 	SELECTED_ERROR
 } from '../types';
@@ -16,6 +19,9 @@ import { loadUser } from './authAction';
 
 export const setMetrics = () => async dispatch => {
 	try {
+		dispatch({
+			type: LOADING_METRICS
+		});
 		const res = await axios.get('/api/transactions/metrics');
 		dispatch({
 			type: SET_METRICS,
@@ -44,6 +50,9 @@ export const clearMetrics = () => async dispatch => {
 
 export const setGraph = (graphType = 'week') => async dispatch => {
 	try {
+		dispatch({
+			type: LOADING_GRAPH
+		});
 		var res = {};
 		if (graphType === 'month') {
 			res = await axios.get('/api/transactions/month');
@@ -79,6 +88,9 @@ export const clearGraph = () => async dispatch => {
 
 export const setSelected = () => async dispatch => {
 	try {
+		dispatch({
+			type: LOADING_SELECTED
+		});
 		const res = await axios.get('/api/users/user/selectedReceiver');
 		dispatch({
 			type: SET_SELECTED,

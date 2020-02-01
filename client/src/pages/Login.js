@@ -6,13 +6,14 @@ import { Link, Redirect } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 //Redux
 import { connect } from 'react-redux';
 import { setAlert } from '../redux/actions/alertAction';
 import { login } from '../redux/actions/authAction';
 
-const Login = ({ login, isAuthenticated }) => {
+const Login = ({ login, isAuthenticated, loading }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 		password: ''
@@ -49,6 +50,7 @@ const Login = ({ login, isAuthenticated }) => {
 								name='email'
 								value={email}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 
@@ -60,11 +62,17 @@ const Login = ({ login, isAuthenticated }) => {
 								name='password'
 								value={password}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 
-						<Button variant='primary btn-block' type='submit' className='mt-4'>
-							Submit
+						<Button
+							variant='primary btn-block'
+							type='submit'
+							className='mt-4'
+							disabled={loading}
+						>
+							{loading ? <Spinner animation='border' /> : 'Submit'}
 						</Button>
 					</Form>
 					<div className='mt-3'>
@@ -79,11 +87,13 @@ const Login = ({ login, isAuthenticated }) => {
 Login.propTypes = {
 	setAlert: PropTypes.func.isRequired,
 	login: PropTypes.func.isRequired,
-	isAuthenticated: PropTypes.bool
+	isAuthenticated: PropTypes.bool,
+	loading: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
-	isAuthenticated: state.auth.isAuthenticated
+	isAuthenticated: state.auth.isAuthenticated,
+	loading: state.auth.loading
 });
 
 const mapActionsToProps = {

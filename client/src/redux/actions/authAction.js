@@ -7,6 +7,7 @@ import {
 	LOGIN_FAIL,
 	USER_LOADED,
 	AUTH_ERROR,
+	LOADING,
 	LOGOUT
 } from '../types';
 import setAuthToken from '../../utils/setAuthToken';
@@ -18,6 +19,10 @@ export const loadUser = () => async dispatch => {
 	}
 
 	try {
+		dispatch({
+			type: LOADING
+		});
+
 		const res = await axios.get('/api/users/user');
 
 		dispatch({
@@ -47,6 +52,10 @@ export const register = ({
 	const body = JSON.stringify({ firstName, lastName, email, password });
 
 	try {
+		dispatch({
+			type: LOADING
+		});
+
 		const res = await axios.post('/api/users/user/register', body, config);
 
 		dispatch({
@@ -80,6 +89,10 @@ export const login = (email, password) => async dispatch => {
 	const body = JSON.stringify({ email, password });
 
 	try {
+		dispatch({
+			type: LOADING
+		});
+
 		const res = await axios.post('/api/users/user/login', body, config);
 
 		dispatch({
@@ -103,5 +116,8 @@ export const login = (email, password) => async dispatch => {
 
 // Logout / Clear Profile
 export const logout = () => dispatch => {
+	dispatch({
+		type: LOADING
+	});
 	dispatch({ type: LOGOUT });
 };

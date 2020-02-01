@@ -6,13 +6,14 @@ import { Link, Redirect } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 //Redux
 import { connect } from 'react-redux';
 import { setAlert } from '../redux/actions/alertAction';
 import { register } from '../redux/actions/authAction';
 
-const Register = ({ setAlert, register, isAuthenticated }) => {
+const Register = ({ setAlert, register, isAuthenticated, loading }) => {
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -57,6 +58,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								name='firstName'
 								value={firstName}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 						<Form.Group controlId='formBasicLastName'>
@@ -67,6 +69,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								name='lastName'
 								value={lastName}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 						<Form.Group controlId='formBasicEmail'>
@@ -77,6 +80,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								name='email'
 								value={email}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 						<Form.Group controlId='formBasicPassword'>
@@ -87,6 +91,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								name='password'
 								value={password}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
 						<Form.Group controlId='formBasicConfirmPassword'>
@@ -97,10 +102,16 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 								name='confirmPassword'
 								value={confirmPassword}
 								onChange={e => onChange(e)}
+								disabled={loading}
 							/>
 						</Form.Group>
-						<Button variant='primary btn-block' type='submit' className='mt-4'>
-							Submit
+						<Button
+							variant='primary btn-block'
+							type='submit'
+							className='mt-4'
+							disabled={loading}
+						>
+							{loading ? <Spinner animation='border' /> : 'Submit'}
 						</Button>
 					</Form>
 					<div className='mt-3'>
@@ -115,11 +126,13 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 Register.propTypes = {
 	setAlert: PropTypes.func.isRequired,
 	register: PropTypes.func.isRequired,
-	isAuthenticated: PropTypes.bool
+	isAuthenticated: PropTypes.bool,
+	loading: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
-	isAuthenticated: state.auth.isAuthenticated
+	isAuthenticated: state.auth.isAuthenticated,
+	loading: state.auth.loading
 });
 
 const mapActionsToProps = {

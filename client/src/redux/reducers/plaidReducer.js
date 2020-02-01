@@ -5,6 +5,7 @@ import {
 	SET_PLAID_ITEMS,
 	PLAID_ERROR,
 	CLEAR_PLAID_ITEMS,
+	LOADING_PLAID,
 	LOGOUT
 } from '../types';
 
@@ -44,6 +45,11 @@ export default function(state = initialState, action) {
 				loading: false,
 				transactionsData: [],
 				plaidItems: null
+			};
+		case LOADING_PLAID:
+			return {
+				...state,
+				loading: true
 			};
 		case GET_ACCESS_TOKEN:
 		case SET_PUBLIC_TOKEN:

@@ -4,11 +4,15 @@ import {
 	SET_RECEIVERS,
 	RECEIVERS_ERROR,
 	SET_USER_RECEIVER,
-	SET_RECEIVER_DASH_LINK
+	SET_RECEIVER_DASH_LINK,
+	LOADING_RECEIVERS
 } from '../types';
 
 export const setReceivers = () => async dispatch => {
 	try {
+		dispatch({
+			type: LOADING_RECEIVERS
+		});
 		const res = await axios.get('/api/receivers/');
 		dispatch({
 			type: SET_RECEIVERS,
@@ -30,6 +34,9 @@ export const setReceivers = () => async dispatch => {
 
 export const setUserReceiver = () => async dispatch => {
 	try {
+		dispatch({
+			type: LOADING_RECEIVERS
+		});
 		const res = await axios.get('/api/receivers/receiver');
 		dispatch({
 			type: SET_USER_RECEIVER,

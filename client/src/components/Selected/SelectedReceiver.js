@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 
 // Components
 import ReceiverCard from './ReceiverCard';
+import LoadingCard from '../LoadingCard';
 
 const SelectedReceiver = ({
 	selected: { selectedReceiver, loading },
@@ -49,11 +50,15 @@ const SelectedReceiver = ({
 
 	return (
 		<Fragment>
-			<Card className='shadow-sm my-3'>
-				{!loading && (
-					<Fragment>{selectedReceiver === null ? select : selected}</Fragment>
-				)}
-			</Card>
+			{loading ? (
+				<LoadingCard />
+			) : (
+				<Card className='shadow-sm my-3'>
+					{!loading && (
+						<Fragment>{selectedReceiver === null ? select : selected}</Fragment>
+					)}
+				</Card>
+			)}
 		</Fragment>
 	);
 };

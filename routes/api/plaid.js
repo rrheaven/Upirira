@@ -202,8 +202,6 @@ router.delete('/user/item/:item_id', auth, async (req, res) => {
 				}
 			});
 
-			const foundUser = await User.findById(req.user.id);
-
 			await stripe.customers.deleteSource(
 				foundUser.stripeData.customerId,
 				foundUser.stripeData.source,
@@ -394,7 +392,7 @@ router.post(
 								currency: 'usd',
 								customer: foundUser.stripeData.customerId,
 								source: foundUser.stripeData.source,
-								description: 'My First Test Charge (created for API docs)'
+								description: 'Webhook charge'
 							},
 							async (err, charge) => {
 								if (err != null) {

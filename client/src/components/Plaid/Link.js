@@ -10,6 +10,10 @@ import { setPublicToken } from '../../redux/actions/plaidAction';
 import Card from 'react-bootstrap/Card';
 
 const Link = ({ setPublicToken }) => {
+	// const config = require('config');
+	// const PLAID_PUBLIC_KEY = config.get('PLAID_PUBLIC_KEY');
+	// const WEBHOOK_ENDPOINT = config.get('WEBHOOK_ENDPOINT');
+
 	const handleOnSuccess = (public_token, metadata) => {
 		// send token to client server
 		const account_id = metadata.account_id;
@@ -27,8 +31,8 @@ const Link = ({ setPublicToken }) => {
 						clientName='React Plaid Setup'
 						env='sandbox'
 						product={['auth', 'transactions']}
-						publicKey='18d9205e9c8060e88c9d25163276e6'
-						webhook='https://webhook.site/d0d9f89c-9b6a-4c5e-9652-19521b4d8160'
+						publicKey={'18d9205e9c8060e88c9d25163276e6'}
+						webhook='https://protected-oasis-63278.herokuapp.com/api/plaid/auth/public_token'
 						onExit={handleOnExit}
 						onSuccess={handleOnSuccess}
 						className='test'

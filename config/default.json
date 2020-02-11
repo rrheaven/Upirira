@@ -6,5 +6,8 @@
 	"PLAID_PUBLIC_KEY": "18d9205e9c8060e88c9d25163276e6",
 	"PLAID_ENV": "sandbox",
 	"STRIPE_TEST_SECRET": "sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm",
-	"WEBHOOK_ENDPOINT": "https://protected-oasis-63278.herokuapp.com/api/plaid/auth/public_token"
+	"WEBHOOK_ENDPOINT": "https://protected-oasis-63278.herokuapp.com/api/plaid/auth/public_token",
+	"EMAIL_USER": "avikonduru@gmail.com",
+	"EMAIL_PASSWORD": "Kumar257530-",
+	"CLIENT_ORIGIN": "http://localhost:3000"
 }

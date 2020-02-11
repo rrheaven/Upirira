@@ -5,6 +5,8 @@ const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
+const sendEmail = require('../../utils/email/sendEmail');
+const emailTemplates = require('../../utils/email/emailTemplates');
 
 // Models
 const User = require('../../models/User');
@@ -45,17 +47,11 @@ router.post(
 					.json({ errors: [{ msg: 'User already exists' }] });
 			}
 
-			const donationPie = {
-				availablePercentage: 100,
-				slices: []
-			};
-
 			user = new User({
 				firstName,
 				lastName,
 				email,
-				password,
-				donationPie
+				password
 			});
 
 			const salt = await bcrypt.genSalt(10);
@@ -64,22 +60,8 @@ router.post(
 
 			await user.save();
 
-			const payload = {
-				user: {
-					id: user.id
-				}
-			};
-
-			// TODO: Change expiresIn to 3600 for production
-			jwt.sign(
-				payload,
-				config.get('jwtSecret'),
-				{ expiresIn: 360000 },
-				(err, token) => {
-					if (err) throw err;
-					res.json({ token });
-				}
-			);
+			await sendEmail(email, emailTemplates.confirmationEmail(user._id));
+			res.json('email sent');
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server error');
@@ -240,6 +222,42 @@ router.delete('/user/selectedReceiver/:receiver_id', auth, async (req, res) => {
 		await user.save();
 
 		res.json('Receiver unselected from user');
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route    POST users/user/confirmAccount/:user_id
+// @desc     Post token after user has confirmed their email
+// @access   Public
+router.post('/user/confirmAccount/:user_id', async (req, res) => {
+	try {
+		const user = await User.findById(req.params.user_id);
+
+		if (!user) {
+			return res.status(400).json({ msg: 'User does not exist' });
+		}
+
+		user.isConfirmed = true;
+		await user.save();
+
+		const payload = {
+			user: {
+				id: user.id
+			}
+		};
+
+		// TODO: Change expiresIn to 3600 for production
+		jwt.sign(
+			payload,
+			config.get('jwtSecret'),
+			{ expiresIn: 360000 },
+			(err, token) => {
+				if (err) throw err;
+				res.json({ token });
+			}
+		);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error');

@@ -10,6 +10,7 @@ export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const USER_LOADED = 'USER_LOADED';
 export const AUTH_ERROR = 'AUTH_ERROR';
 export const LOADING = 'LOADING';
+export const CREATED_UNCONFIRMED_USER = 'CREATED_UNCONFIRMED_USER';
 
 // Metrics Reducer
 export const SET_METRICS = 'SET_METRICS';

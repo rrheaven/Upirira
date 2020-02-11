@@ -34,6 +34,7 @@ export default function(state = initialState, action) {
 		case SELECTED_ERROR:
 			return {
 				...state,
+				loading: false,
 				errors: payload
 			};
 		case LOADING_SELECTED:

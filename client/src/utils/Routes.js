@@ -7,6 +7,7 @@ import Alerts from '../components/Alerts';
 // Pages
 import Register from '../pages/Register';
 import Login from '../pages/Login';
+import Confirm from '../pages/Confirm';
 import Dash from '../pages/Dash';
 import Search from '../pages/Search';
 import Settings from '../pages/Settings';
@@ -27,6 +28,7 @@ const Routes = () => {
 				<Switch>
 					<Route exact path='/login' component={Login} />
 					<Route exact path='/register' component={Register} />
+					<Route exact path='/confirm/:id' component={Confirm} />
 					<PrivateRoute exact path='/dash' component={Dash} />
 					<PrivateRoute exact path='/search' component={Search} />
 					<PrivateRoute exact path='/receiver' component={Receiver} />

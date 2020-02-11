@@ -28,27 +28,27 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 						<Row>
 							<Col>
 								Today: $
-								{metrics.oneDayTotal &&
-									!loading &&
-									metrics.oneDayTotal.toFixed(2)}
+								{metrics.oneDayTotal && !loading
+									? metrics.oneDayTotal.toFixed(2)
+									: 0}
 							</Col>
 							<Col>
 								This Week: $
-								{metrics.oneWeekTotal &&
-									!loading &&
-									metrics.oneWeekTotal.toFixed(2)}
+								{metrics.oneWeekTotal && !loading
+									? metrics.oneWeekTotal.toFixed(2)
+									: 0}
 							</Col>
 							<Col>
 								This Month: $
-								{metrics.oneMonthTotal &&
-									!loading &&
-									metrics.oneMonthTotal.toFixed(2)}
+								{metrics.oneMonthTotal && !loading
+									? metrics.oneMonthTotal.toFixed(2)
+									: 0}
 							</Col>
 							<Col>
 								This Year: $
-								{metrics.oneYearTotal &&
-									!loading &&
-									metrics.oneYearTotal.toFixed(2)}
+								{metrics.oneYearTotal && !loading
+									? metrics.oneYearTotal.toFixed(2)
+									: 0}
 							</Col>
 						</Row>
 					</Container>

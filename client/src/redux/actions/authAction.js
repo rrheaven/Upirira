@@ -8,7 +8,8 @@ import {
 	USER_LOADED,
 	AUTH_ERROR,
 	LOADING,
-	LOGOUT
+	LOGOUT,
+	CREATED_UNCONFIRMED_USER
 } from '../types';
 import setAuthToken from '../../utils/setAuthToken';
 
@@ -56,14 +57,20 @@ export const register = ({
 			type: LOADING
 		});
 
-		const res = await axios.post('/api/users/user/register', body, config);
+		await axios.post('/api/users/user/register', body, config);
 
 		dispatch({
-			type: REGISTER_SUCCESS,
-			payload: res.data
+			type: CREATED_UNCONFIRMED_USER
 		});
 
-		dispatch(loadUser());
+		dispatch(setAlert('Confirmation email sent', 'success'));
+
+		// dispatch({
+		// 	type: REGISTER_SUCCESS,
+		// 	payload: res.data
+		// });
+
+		// dispatch(loadUser());
 	} catch (err) {
 		console.log(err.response.data.errors);
 		const errors = err.response.data.errors;
@@ -120,4 +127,31 @@ export const logout = () => dispatch => {
 		type: LOADING
 	});
 	dispatch({ type: LOGOUT });
+};
+
+export const confirmAccount = id => async dispatch => {
+	try {
+		dispatch({
+			type: LOADING
+		});
+
+		const res = await axios.post(`/api/users/user/confirmAccount/${id}`);
+
+		dispatch({
+			type: REGISTER_SUCCESS,
+			payload: res.data
+		});
+
+		dispatch(loadUser());
+	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
+		dispatch({
+			type: LOGIN_FAIL
+		});
+	}
 };

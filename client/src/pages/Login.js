@@ -77,6 +77,8 @@ const Login = ({ login, isAuthenticated, loading }) => {
 					</Form>
 					<div className='mt-3'>
 						<Link to='/register'>Don't have an account? Register instead</Link>
+						<br />
+						<Link to='/lostPassword'>Forgot Password?</Link>
 					</div>
 				</Card.Body>
 			</Card>

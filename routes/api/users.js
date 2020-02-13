@@ -139,6 +139,57 @@ router.get('/user', auth, async (req, res) => {
 	}
 });
 
+// @route    PUT users/user
+// @desc     Update auth user
+// @access   Private
+router.put(
+	'/user',
+	[
+		auth,
+		[
+			check('firstName', 'Name is required')
+				.not()
+				.isEmpty(),
+			check('lastName', 'Name is required')
+				.not()
+				.isEmpty(),
+			check('email', 'Please include a valid email').isEmail()
+		]
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { firstName, lastName, email } = req.body;
+
+		try {
+			const user = await User.findById(req.user.id).select('-password');
+
+			if (user.email !== email) {
+				const existingEmail = await User.findOne({ email });
+
+				if (existingEmail) {
+					return res
+						.status(400)
+						.json({ errors: [{ msg: 'Email already exists' }] });
+				}
+			}
+
+			user.firstName = firstName;
+			user.lastName = lastName;
+			user.email = email;
+			await user.save();
+
+			res.json(user);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
 // @route    GET users/user/selectedReceiver
 // @desc     Get auth user's selected receiver
 // @access   Private
@@ -263,5 +314,76 @@ router.post('/user/confirmAccount/:user_id', async (req, res) => {
 		res.status(500).send('Server Error');
 	}
 });
+
+// @route    POST users/user/changePassword
+// @desc     Post change password link to email
+// @access   Public
+router.post(
+	'/user/changePassword',
+	[check('email', 'Please include a valid email').isEmail()],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { email } = req.body;
+
+		try {
+			const user = await User.findOne({ email });
+
+			if (!user) {
+				return res.status(400).json({ msg: 'Not a valid email address' });
+			}
+
+			await sendEmail(email, emailTemplates.createNewPassword(user._id));
+			res.json('Change password email has been sent');
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
+// @route    POST users/user/newPassword/:user_id
+// @desc     Post change password link to email
+// @access   Public
+router.post(
+	'/user/newPassword/:user_id',
+	[
+		check(
+			'password',
+			'Please enter a password with 6 or more characters'
+		).isLength({ min: 6 })
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { password } = req.body;
+
+		try {
+			const user = await User.findById(req.params.user_id);
+
+			if (!user) {
+				return res.status(400).json({ msg: 'Not a user' });
+			}
+
+			const salt = await bcrypt.genSalt(10);
+
+			user.password = await bcrypt.hash(password, salt);
+			await user.save();
+
+			res.json('password updated');
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
 
 module.exports = router;

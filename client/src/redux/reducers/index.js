@@ -8,6 +8,7 @@ import graph from './graphReducer';
 import receivers from './receiversReducer';
 import plaid from './plaidReducer';
 import selected from './selectedReducer';
+import password from './passwordReducer';
 
 export default combineReducers({
 	alert,
@@ -16,5 +17,6 @@ export default combineReducers({
 	graph,
 	receivers,
 	plaid,
-	selected
+	selected,
+	password
 });

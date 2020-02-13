@@ -12,6 +12,8 @@ import Dash from '../pages/Dash';
 import Search from '../pages/Search';
 import Settings from '../pages/Settings';
 import Receiver from '../pages/receiverPages/Receiver';
+import LostPassword from '../pages/passwordPages/ForgotPassword';
+import NewPassword from '../pages/passwordPages/NewPassword';
 import NotFound from '../pages/NotFound';
 
 // Bootstrap
@@ -29,6 +31,8 @@ const Routes = () => {
 					<Route exact path='/login' component={Login} />
 					<Route exact path='/register' component={Register} />
 					<Route exact path='/confirm/:id' component={Confirm} />
+					<Route exact path='/lostPassword' component={LostPassword} />
+					<Route exact path='/newPassword/:id' component={NewPassword} />
 					<PrivateRoute exact path='/dash' component={Dash} />
 					<PrivateRoute exact path='/search' component={Search} />
 					<PrivateRoute exact path='/receiver' component={Receiver} />

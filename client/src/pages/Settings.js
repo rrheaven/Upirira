@@ -6,12 +6,14 @@ import { setPlaidItems } from '../redux/actions/plaidAction';
 
 // Bootstrap
 import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
 
 // Components
 import Link from '../components/Plaid/Link';
 import Item from '../components/Plaid/Item';
+import UserSettings from '../components/UserSettings/UserSettings';
 
-const Settings = ({ plaid: { plaidItems, loading }, setPlaidItems }) => {
+const Settings = ({ plaid: { plaidItems, plaidLoading }, setPlaidItems }) => {
 	useEffect(() => {
 		setPlaidItems();
 	}, [setPlaidItems]);
@@ -37,11 +39,13 @@ const Settings = ({ plaid: { plaidItems, loading }, setPlaidItems }) => {
 					<h3>Settings</h3>
 				</Card.Header>
 				<Card.Body>
-					{!loading && (
+					{!plaidLoading && (
 						<Fragment>
 							{plaidItems === null ? registerAccount : registeredAccount}
 						</Fragment>
 					)}
+					<br />
+					<UserSettings />
 				</Card.Body>
 			</Card>
 		</Fragment>

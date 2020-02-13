@@ -47,5 +47,11 @@ export const CLEAR_SELECTED = 'CLEAR_SELECTED';
 export const SELECTED_ERROR = 'SELECTED_ERROR';
 export const LOADING_SELECTED = 'LOADING_SELECTED';
 
+// Password Reducer
+export const PASSWORD_ERROR = 'PASSWORD_ERROR';
+export const LOADING_PASSWORD = 'LOADING_PASSWORD';
+export const LOADED_PASSWORD = 'LOADED_PASSWORD';
+export const CLEAR_PASSWORD = 'CLEAR_PASSWORD';
+
 // Used for multiple reducers
 export const LOGOUT = 'LOGOUT';

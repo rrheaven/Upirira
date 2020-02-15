@@ -7,7 +7,8 @@ import {
 	AUTH_ERROR,
 	LOADING,
 	LOGOUT,
-	CREATED_UNCONFIRMED_USER
+	CREATED_UNCONFIRMED_USER,
+	USER_UPDATED
 } from '../types';
 
 const initialState = {
@@ -54,6 +55,7 @@ export default function(state = initialState, action) {
 				loading: true
 			};
 		case CREATED_UNCONFIRMED_USER:
+		case USER_UPDATED:
 			return {
 				...state,
 				loading: false

@@ -95,6 +95,12 @@ router.post(
 					.json({ errors: [{ msg: 'Invalid Credentials' }] });
 			}
 
+			if (user.isConfirmed === false) {
+				return res.status(400).json({
+					errors: [{ msg: 'Must confirm your email before logging in' }]
+				});
+			}
+
 			const isMatch = await bcrypt.compare(password, user.password);
 
 			if (!isMatch) {

@@ -9,7 +9,8 @@ import {
 	AUTH_ERROR,
 	LOADING,
 	LOGOUT,
-	CREATED_UNCONFIRMED_USER
+	CREATED_UNCONFIRMED_USER,
+	USER_UPDATED
 } from '../types';
 import setAuthToken from '../../utils/setAuthToken';
 
@@ -141,6 +142,40 @@ export const confirmAccount = id => async dispatch => {
 			type: REGISTER_SUCCESS,
 			payload: res.data
 		});
+
+		dispatch(loadUser());
+	} catch (err) {
+		const errors = err.response.data.errors;
+
+		if (errors) {
+			errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+		}
+
+		dispatch({
+			type: LOGIN_FAIL
+		});
+	}
+};
+
+export const editUser = ({ firstName, lastName, email }) => async dispatch => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	};
+
+	const body = JSON.stringify({ firstName, lastName, email });
+
+	try {
+		dispatch({
+			type: LOADING
+		});
+
+		await axios.put(`/api/users/user/`, body, config);
+		dispatch({
+			type: USER_UPDATED
+		});
+		dispatch(setAlert('Account Updated', 'success'));
 
 		dispatch(loadUser());
 	} catch (err) {

@@ -23,7 +23,8 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 
 	const { firstName, lastName } = formData;
 
-	useEffect(() => {
+	const loadAndSet = async () => {
+		await loadUser();
 		if (!loading) {
 			setFormData({
 				...formData,
@@ -31,7 +32,7 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 				lastName: user.lastName
 			});
 		}
-	}, []);
+	};
 
 	const onChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,10 +50,17 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 			}
 		} else {
 			setEditMode(true);
+			loadAndSet();
 		}
 	};
 
-	return (
+	const noEdit = (
+		<Fragment>
+			<Button onClick={e => onSubmit(e)}>Edit</Button>
+		</Fragment>
+	);
+
+	const yesEdit = (
 		<Fragment>
 			<Form onSubmit={e => onSubmit(e)}>
 				<Form.Group controlId='formBasicFirstName'>
@@ -63,7 +71,7 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 						name='firstName'
 						value={firstName}
 						onChange={e => onChange(e)}
-						disabled={loading || !editMode}
+						disabled={loading}
 					/>
 				</Form.Group>
 				<Form.Group controlId='formBasicLastName'>
@@ -74,7 +82,7 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 						name='lastName'
 						value={lastName}
 						onChange={e => onChange(e)}
-						disabled={loading || !editMode}
+						disabled={loading}
 					/>
 				</Form.Group>
 				<Button
@@ -83,19 +91,13 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 					className='mt-4'
 					disabled={loading}
 				>
-					{editMode ? (
-						loading ? (
-							<Spinner animation='border' />
-						) : (
-							'Submit'
-						)
-					) : (
-						'Edit'
-					)}
+					{loading ? <Spinner animation='border' /> : 'Submit'}
 				</Button>
 			</Form>
 		</Fragment>
 	);
+
+	return <Fragment>{editMode ? yesEdit : noEdit}</Fragment>;
 };
 
 ChangeName.propTypes = {

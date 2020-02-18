@@ -23,17 +23,6 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 
 	const { firstName, lastName } = formData;
 
-	const loadAndSet = async () => {
-		await loadUser();
-		if (!loading) {
-			setFormData({
-				...formData,
-				firstName: user.firstName,
-				lastName: user.lastName
-			});
-		}
-	};
-
 	const onChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
@@ -50,7 +39,14 @@ const ChangeName = ({ loading, user, loadUser, editUser, setAlert }) => {
 			}
 		} else {
 			setEditMode(true);
-			loadAndSet();
+			await loadUser();
+			if (!loading) {
+				setFormData({
+					...formData,
+					firstName: user.firstName,
+					lastName: user.lastName
+				});
+			}
 		}
 	};
 

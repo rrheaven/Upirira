@@ -17,6 +17,8 @@ const PLAID_CLIENT_ID = config.get('PLAID_CLIENT_ID');
 const PLAID_SECRET = config.get('PLAID_SECRET');
 const PLAID_PUBLIC_KEY = config.get('PLAID_PUBLIC_KEY');
 const PLAID_ENV = config.get('PLAID_ENV');
+const PLAID_OAUTH_REDIRECT_URI = config.get('PLAID_OAUTH_REDIRECT_URI');
+const PLAID_OAUTH_NONCE = config.get('PLAID_OAUTH_NONCE');
 
 // Initialize the Plaid client
 const client = new plaid.Client(
@@ -294,11 +296,11 @@ router.get('/transactions', auth, async (req, res) => {
 	}
 });
 
-// @route Post api/plaid/webhooks
-// @desc Post plaid item transactions based on update webhook
+// @route Post api/plaid/plaid/webhooks
+// @desc Post plaid item transactions based on update webhook or delete if error webhook
 // @access Public
 router.post(
-	'/webhooks',
+	'/plaid/webhooks',
 	[
 		check('webhook_type', 'webhook_type is required')
 			.not()
@@ -316,106 +318,227 @@ router.post(
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const {
-			webhook_type,
-			webhook_code,
-			item_id,
-			error,
-			new_transactions
-		} = req.body;
+		const { webhook_type, webhook_code, item_id } = req.body;
 
 		try {
-			if (webhook_type !== 'TRANSACTIONS') {
-				return res.status(400).json({ msg: 'Webhook only for transactions' });
-			}
+			if (webhook_type === 'TRANSACTIONS') {
+				if (webhook_code !== 'DEFAULT_UPDATE') {
+					return res
+						.status(400)
+						.json({ msg: 'Webhook only for new transactions' });
+				}
 
-			if (webhook_code !== 'DEFAULT_UPDATE') {
-				return res
-					.status(400)
-					.json({ msg: 'Webhook only for new transactions' });
-			}
+				const foundItem = await Item.findOne({ itemId: item_id });
 
-			const foundItem = await Item.findOne({ itemId: item_id });
+				if (!foundItem) {
+					return res.status(400).json({
+						msg: 'Item does not exist'
+					});
+				}
 
-			if (!foundItem) {
-				return res.status(400).json({
-					msg: 'Item does not exist'
-				});
-			}
+				const ACCESS_TOKEN = foundItem.accessToken;
 
-			const ACCESS_TOKEN = foundItem.accessToken;
+				let startDate = moment(foundItem.dateLastUpdated).format('YYYY-MM-DD');
+				let endDate = moment().format('YYYY-MM-DD');
 
-			let startDate = moment(foundItem.dateLastUpdated).format('YYYY-MM-DD');
-			let endDate = moment().format('YYYY-MM-DD');
-
-			await client.getTransactions(
-				ACCESS_TOKEN,
-				startDate,
-				endDate,
-				{
-					count: 250,
-					offset: 0
-				},
-				async (error, transactionsResponse) => {
-					if (error != null) {
-						return res.status(400).json({
-							msg: error
-						});
-					} else {
-						let transactionAmounts = [];
-						transactionsResponse.transactions.map(async transaction => {
-							if (
-								transaction.amount > 0 &&
-								!Number.isInteger(transaction.amount)
-							) {
-								let diff = Math.ceil(transaction.amount) - transaction.amount;
-								await transactionAmounts.push(diff);
-							}
-						});
-						foundItem.dateLastUpdated = moment();
-						await foundItem.save();
-
-						summedTransactions =
-							(Math.round(summedTransactions * 1e2) / 1e2) * 100;
-
-						const foundUser = await User.findById(req.user.id);
-
-						if (!foundUser.stripeData.customerId) {
+				await client.getTransactions(
+					ACCESS_TOKEN,
+					startDate,
+					endDate,
+					{
+						count: 250,
+						offset: 0
+					},
+					async (error, transactionsResponse) => {
+						if (error != null) {
 							return res.status(400).json({
-								msg: 'User has not registered an account'
+								msg: error
+							});
+						} else {
+							let transactionAmounts = [];
+							transactionsResponse.transactions.map(async transaction => {
+								if (
+									transaction.amount > 0 &&
+									!Number.isInteger(transaction.amount)
+								) {
+									let diff = Math.ceil(transaction.amount) - transaction.amount;
+									await transactionAmounts.push(diff);
+								}
+							});
+							foundItem.dateLastUpdated = moment();
+							await foundItem.save();
+
+							let summedTransactions = transactionAmounts.reduce(
+								(a, b) => a + b,
+								0
+							);
+
+							summedTransactions =
+								(Math.round(summedTransactions * 1e2) / 1e2) * 100;
+
+							const foundUser = await User.findById(req.user.id);
+
+							if (!foundUser.stripeData.customerId) {
+								return res.status(400).json({
+									msg: 'User has not registered an account'
+								});
+							}
+
+							await stripe.charges.create(
+								{
+									amount: summedTransactions,
+									currency: 'usd',
+									customer: foundUser.stripeData.customerId,
+									source: foundUser.stripeData.source,
+									description: 'Webhook charge'
+								},
+								async (err, charge) => {
+									if (err != null) {
+										return res.status(400).json({
+											msg: err
+										});
+									}
+
+									const newTransaction = new Transaction({
+										giverId: req.user.id,
+										amount: summedTransactions / 100,
+										receiverId: foundUser.selectedReceiverId,
+										bankId: foundUser.stripeData.source
+									});
+
+									await newTransaction.save();
+
+									return res.status(200).json(newTransaction);
+								}
+							);
+						}
+					}
+				);
+			} else if (webhook_type === 'ERROR') {
+				const foundItem = await Item.findOne({ itemId: item_id });
+				if (!foundItem) {
+					return res.status(400).json({
+						msg: 'Item does not exist or has already been deleted'
+					});
+				}
+				const foundUser = await User.findById(foundItem.userId);
+
+				const ACCESS_TOKEN = foundItem.accessToken;
+
+				await client.removeItem(ACCESS_TOKEN, async (err, result) => {
+					if (err != null) {
+						return res.status(400).json({
+							msg: err
+						});
+					}
+
+					await Item.deleteOne({ _id: foundItem._id }, err => {
+						if (err) {
+							return res.status(400).json({
+								msg: 'Item does not exist or has already been deleted'
 							});
 						}
+					});
 
-						await stripe.charges.create(
-							{
-								amount: summedTransactions,
-								currency: 'usd',
-								customer: foundUser.stripeData.customerId,
-								source: foundUser.stripeData.source,
-								description: 'Webhook charge'
-							},
-							async (err, charge) => {
-								if (err != null) {
-									return res.status(400).json({
-										msg: err
-									});
-								}
-
-								const newTransaction = new Transaction({
-									giverId: req.user.id,
-									amount: summedTransactions / 100,
-									receiverId: foundUser.selectedReceiverId,
-									bankId: foundUser.stripeData.source
+					await stripe.customers.deleteSource(
+						foundUser.stripeData.customerId,
+						foundUser.stripeData.source,
+						async (err, confirmation) => {
+							if (err) {
+								return res.status(400).json({
+									msg: err
 								});
-
-								await newTransaction.save();
-
-								res.json(newTransaction);
 							}
-						);
-					}
+							foundUser.stripeData.source = undefined;
+
+							await foundUser.save();
+							return res.status(400).json('Item has been deleted');
+						}
+					);
+				});
+			} else {
+				return res.status(400).json({ msg: 'Webhook code not supported' });
+			}
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
+// @route Post api/plaid/stripe/webhooks
+// @desc Post plaid item  delete if error webhook
+// @access Public
+router.post(
+	'/stripe/webhooks',
+	[
+		check('data', 'data is required')
+			.not()
+			.isEmpty(),
+		check('type', 'type is required')
+			.not()
+			.isEmpty()
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { data, type } = req.body;
+
+		try {
+			if (type === 'charge.failed') {
+				const foundUser = await User.findOne({ source: data.id });
+				if (!foundUser) {
+					return res.status(400).json({
+						msg: 'User does not exist or has already been deleted'
+					});
 				}
-			);
+
+				const foundItem = await Item.findOne({ userId: foundUser._id });
+				if (!foundItem) {
+					return res.status(400).json({
+						msg: 'Item does not exist or has already been deleted'
+					});
+				}
+
+				const ACCESS_TOKEN = foundItem.accessToken;
+
+				await client.removeItem(ACCESS_TOKEN, async (err, result) => {
+					if (err != null) {
+						return res.status(400).json({
+							msg: err
+						});
+					}
+
+					await Item.deleteOne({ _id: foundItem._id }, err => {
+						if (err) {
+							return res.status(400).json({
+								msg: 'Item does not exist or has already been deleted'
+							});
+						}
+					});
+
+					await stripe.customers.deleteSource(
+						foundUser.stripeData.customerId,
+						foundUser.stripeData.source,
+						async (err, confirmation) => {
+							if (err) {
+								return res.status(400).json({
+									msg: err
+								});
+							}
+							foundUser.stripeData.source = undefined;
+
+							await foundUser.save();
+							return res.status(400).json('Item has been deleted');
+						}
+					);
+				});
+			} else {
+				return res.status(400).json({ msg: 'Webhook code not supported' });
+			}
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');

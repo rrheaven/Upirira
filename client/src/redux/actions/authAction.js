@@ -59,13 +59,17 @@ export const register = ({
 			type: LOADING
 		});
 
-		await axios.post('/api/users/user/register', body, config);
+		const res = await axios.post('/api/users/user/register', body, config);
 
 		dispatch({
 			type: CREATED_UNCONFIRMED_USER
 		});
 
-		dispatch(setAlert('Confirmation email sent', 'success'));
+		if (res === 'Confirmation email sent') {
+			dispatch(setAlert('Confirmation email sent', 'success'));
+		} else if (res === 'Reconfirmation email sent') {
+			dispatch(setAlert('Reconfirmation email sent', 'success'));
+		}
 
 		// dispatch({
 		// 	type: REGISTER_SUCCESS,

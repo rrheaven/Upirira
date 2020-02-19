@@ -5,6 +5,8 @@
 	"PLAID_SECRET": "2d132c7f7ebe7a5fcc76cccc3b6aad",
 	"PLAID_PUBLIC_KEY": "18d9205e9c8060e88c9d25163276e6",
 	"PLAID_ENV": "sandbox",
+	"PLAID_OAUTH_REDIRECT_URI": "http://www.upiria.com/settings",
+	"PLAID_OAUTH_NONCE": "nice-and-long-nonce",
 	"STRIPE_TEST_SECRET": "sk_test_YBsqxxWL4vvE3by5E8YCwePl00BpFDvspm",
 	"WEBHOOK_ENDPOINT": "https://protected-oasis-63278.herokuapp.com/api/plaid/auth/public_token",
 	"EMAIL_USER": "avikonduru@gmail.com",

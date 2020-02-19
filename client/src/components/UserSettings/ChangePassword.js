@@ -1,31 +1,42 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 
 // Redux
 import { connect } from 'react-redux';
+import { sendChangePasswordEmail } from '../../redux/actions/passwordAction';
 
 // Bootstrap
 import Button from 'react-bootstrap/Button';
 
-const ChangePassword = ({ auth: { loading, user }, history }) => {
+const ChangePassword = ({
+	auth: { loading, user },
+	sendChangePasswordEmail
+}) => {
 	const handleClick = () => {
-		!loading && history.push(`/newPassword/${user._id}`);
+		if (!loading) {
+			const email = user.email;
+			sendChangePasswordEmail({ email });
+		}
 	};
 
 	return (
 		<Fragment>
-			<Button onClick={handleClick}>Change Password</Button>
+			<Button onClick={handleClick}>Send Change Password Email</Button>
 		</Fragment>
 	);
 };
 
 ChangePassword.propTypes = {
-	auth: PropTypes.object
+	auth: PropTypes.object,
+	sendChangePasswordEmail: PropTypes.func
 };
 
 const mapStateToProps = state => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps)(withRouter(ChangePassword));
+const mapActionsToProps = {
+	sendChangePasswordEmail
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(ChangePassword);

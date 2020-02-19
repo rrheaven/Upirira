@@ -44,6 +44,16 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 		required: true
+	},
+	tempData: {
+		confirmId: {
+			type: String,
+			default: null
+		},
+		passwordId: {
+			type: String,
+			default: null
+		}
 	}
 });
 

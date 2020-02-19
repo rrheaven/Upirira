@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
 const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
@@ -42,9 +43,32 @@ router.post(
 			let user = await User.findOne({ email });
 
 			if (user) {
-				return res
-					.status(400)
-					.json({ errors: [{ msg: 'User already exists' }] });
+				if (!user.isConfirmed) {
+					user.tempData.confirmId = uuid.v4();
+
+					await user.save();
+
+					const payload = {
+						confirmation: {
+							id: user.tempData.confirmId
+						}
+					};
+
+					jwt.sign(
+						payload,
+						config.get('jwtSecret'),
+						{ expiresIn: 3600 },
+						async (err, token) => {
+							if (err) throw err;
+							await sendEmail(email, emailTemplates.confirmationEmail(token));
+							res.status(200).json('Reconfirmation email sent');
+						}
+					);
+				} else {
+					return res
+						.status(400)
+						.json({ errors: [{ msg: 'User already exists' }] });
+				}
 			}
 
 			user = new User({
@@ -57,11 +81,26 @@ router.post(
 			const salt = await bcrypt.genSalt(10);
 
 			user.password = await bcrypt.hash(password, salt);
+			user.tempData.confirmId = uuid.v4();
 
 			await user.save();
 
-			await sendEmail(email, emailTemplates.confirmationEmail(user._id));
-			res.json('email sent');
+			const payload = {
+				confirmation: {
+					id: user.tempData.confirmId
+				}
+			};
+
+			jwt.sign(
+				payload,
+				config.get('jwtSecret'),
+				{ expiresIn: 3600 },
+				async (err, token) => {
+					if (err) throw err;
+					await sendEmail(email, emailTemplates.confirmationEmail(token));
+					res.status(200).json('Confirmation email sent');
+				}
+			);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server error');
@@ -285,18 +324,36 @@ router.delete('/user/selectedReceiver/:receiver_id', auth, async (req, res) => {
 	}
 });
 
-// @route    POST users/user/confirmAccount/:user_id
+// @route    POST users/user/confirmAccount/:confirm_token
 // @desc     Post token after user has confirmed their email
 // @access   Public
-router.post('/user/confirmAccount/:user_id', async (req, res) => {
+router.post('/user/confirmAccount/:confirm_token', async (req, res) => {
+	let confirmation;
 	try {
-		const user = await User.findById(req.params.user_id);
+		await jwt.verify(
+			req.params.confirm_token,
+			config.get('jwtSecret'),
+			(error, decoded) => {
+				if (error) {
+					res.status(401).json({ msg: 'Token is not valid' });
+				} else {
+					confirmation = decoded.confirmation;
+				}
+			}
+		);
+
+		const user = await User.findOne({
+			'tempData.confirmId': confirmation.id
+		});
 
 		if (!user) {
-			return res.status(400).json({ msg: 'User does not exist' });
+			return res
+				.status(400)
+				.json({ msg: 'User does not exist or link has expired' });
 		}
 
 		user.isConfirmed = true;
+		user.tempData.confirmId = null;
 		await user.save();
 
 		const payload = {
@@ -343,8 +400,22 @@ router.post(
 				return res.status(400).json({ msg: 'Not a valid email address' });
 			}
 
-			await sendEmail(email, emailTemplates.createNewPassword(user._id));
-			res.json('Change password email has been sent');
+			const payload = {
+				user: {
+					password: user.password
+				}
+			};
+
+			jwt.sign(
+				payload,
+				config.get('jwtSecret'),
+				{ expiresIn: 3600 },
+				async (err, token) => {
+					if (err) throw err;
+					await sendEmail(email, emailTemplates.createNewPassword(token));
+					res.json('Change password email has been sent');
+				}
+			);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -352,16 +423,15 @@ router.post(
 	}
 );
 
-// @route    POST users/user/newPassword/:user_id
+// @route    POST users/user/newPassword/:password_token
 // @desc     Post change password link to email
 // @access   Public
 router.post(
-	'/user/newPassword/:user_id',
+	'/user/newPassword/:password_token',
 	[
-		check(
-			'password',
-			'Please enter a password with 6 or more characters'
-		).isLength({ min: 6 })
+		check('password', 'Must provide password')
+			.not()
+			.isEmpty()
 	],
 	async (req, res) => {
 		const errors = validationResult(req);
@@ -372,11 +442,33 @@ router.post(
 
 		const { password } = req.body;
 
+		let decodedUser;
 		try {
-			const user = await User.findById(req.params.user_id);
+			await jwt.verify(
+				req.params.password_token,
+				config.get('jwtSecret'),
+				(error, decoded) => {
+					if (error) {
+						res.status(401).json({ msg: 'Token is not valid' });
+					} else {
+						decodedUser = decoded.user;
+					}
+				}
+			);
+
+			const user = await User.findOne({ password: decodedUser.password });
 
 			if (!user) {
-				return res.status(400).json({ msg: 'Not a user' });
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'Invalid credentials or link expired' }] });
+			}
+
+			const isMatch = await bcrypt.compare(password, user.password);
+			if (isMatch) {
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'Cannot use same password' }] });
 			}
 
 			const salt = await bcrypt.genSalt(10);

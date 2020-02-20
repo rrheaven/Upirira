@@ -7,11 +7,16 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 
 //Redux
 import { connect } from 'react-redux';
 import { setAlert } from '../redux/actions/alertAction';
 import { register } from '../redux/actions/authAction';
+
+// Components
+import TermsOfServiceModal from '../components/TermsOfServiceModal';
 
 const Register = ({ setAlert, register, isAuthenticated, loading }) => {
 	const [formData, setFormData] = useState({
@@ -21,6 +26,8 @@ const Register = ({ setAlert, register, isAuthenticated, loading }) => {
 		password: '',
 		confirmPassword: ''
 	});
+
+	const [termsOfServiceShow, setTermsOfServiceShow] = useState(false);
 
 	const { firstName, lastName, email, password, confirmPassword } = formData;
 
@@ -105,6 +112,23 @@ const Register = ({ setAlert, register, isAuthenticated, loading }) => {
 								disabled={loading}
 							/>
 						</Form.Group>
+						<Form.Group controlId='formBasicCheckbox'>
+							<Form.Label>Terms of Service:</Form.Label>
+							<Container>
+								<Row>
+									<Form.Check
+										required
+										type='checkbox'
+										aria-label='Accept Terms of Service'
+										disabled={loading}
+										feedback='You must agree before submitting.'
+									/>
+									<Button onClick={() => setTermsOfServiceShow(true)}>
+										Read Terms of Service
+									</Button>
+								</Row>
+							</Container>
+						</Form.Group>
 						<Button
 							variant='primary btn-block'
 							type='submit'
@@ -119,6 +143,11 @@ const Register = ({ setAlert, register, isAuthenticated, loading }) => {
 					</div>
 				</Card.Body>
 			</Card>
+
+			<TermsOfServiceModal
+				show={termsOfServiceShow}
+				onHide={() => setTermsOfServiceShow(false)}
+			/>
 		</Fragment>
 	);
 };

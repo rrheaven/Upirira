@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Link from '../components/Plaid/Link';
 import Item from '../components/Plaid/Item';
 import UserSettings from '../components/UserSettings/UserSettings';
+import SpendLimit from '../components/SpendLimit/SpendLimit';
 
 const Settings = ({ plaid: { plaidItems, plaidLoading }, setPlaidItems }) => {
 	useEffect(() => {
@@ -44,6 +45,8 @@ const Settings = ({ plaid: { plaidItems, plaidLoading }, setPlaidItems }) => {
 							{plaidItems === null ? registerAccount : registeredAccount}
 						</Fragment>
 					)}
+					<br />
+					<SpendLimit />
 					<br />
 					<UserSettings />
 				</Card.Body>

@@ -8,7 +8,7 @@ import {
 } from '../types';
 
 const initialState = {
-	spendingLimit: null,
+	currentLimit: null,
 	loading: true,
 	errors: false
 };

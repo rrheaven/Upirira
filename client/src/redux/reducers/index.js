@@ -9,6 +9,7 @@ import receivers from './receiversReducer';
 import plaid from './plaidReducer';
 import selected from './selectedReducer';
 import password from './passwordReducer';
+import spendingLimit from './spendingLimitReducer';
 
 export default combineReducers({
 	alert,
@@ -18,5 +19,6 @@ export default combineReducers({
 	receivers,
 	plaid,
 	selected,
-	password
+	password,
+	spendingLimit
 });

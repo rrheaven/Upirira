@@ -13,6 +13,12 @@ const Item = require('../../models/Item');
 const Transaction = require('../../models/Transaction');
 const Receiver = require('../../models/Receiver');
 
+// utils
+const {
+	getBeginningOfWeekDate,
+	getBeginningOfMonthDate
+} = require('../../utils/dateFunctions');
+
 const PLAID_CLIENT_ID = config.get('PLAID_CLIENT_ID');
 const PLAID_SECRET = config.get('PLAID_SECRET');
 const PLAID_PUBLIC_KEY = config.get('PLAID_PUBLIC_KEY');
@@ -384,33 +390,67 @@ router.post(
 								});
 							}
 
-							await stripe.charges.create(
-								{
-									amount: summedTransactions,
-									currency: 'usd',
-									customer: foundUser.stripeData.customerId,
-									source: foundUser.stripeData.source,
-									description: 'Webhook charge'
-								},
-								async (err, charge) => {
-									if (err != null) {
-										return res.status(400).json({
-											msg: err
-										});
+							if (foundUser.spendingLimit.currentLimit.currentAmountLimit) {
+								if (
+									foundUser.spendingLimit.currentLimit.currentAmountLimit ===
+									'Per Week'
+								) {
+									if (
+										foundUser.spendingLimit.currentLimit.currentAmount <
+										getBeginningOfWeekDate()
+									) {
+										foundUser.spendingLimit.realTimeSpending = 0;
+										foundUser.save();
 									}
-
-									const newTransaction = new Transaction({
-										giverId: req.user.id,
-										amount: summedTransactions / 100,
-										receiverId: foundUser.selectedReceiverId,
-										bankId: foundUser.stripeData.source
-									});
-
-									await newTransaction.save();
-
-									return res.status(200).json(newTransaction);
+								} else if (
+									foundUser.spendingLimit.currentLimit.currentAmountLimit ===
+									'Per Month'
+								) {
+									if (
+										foundUser.spendingLimit.currentLimit.currentAmount <
+										getBeginningOfMonthDate()
+									) {
+										foundUser.spendingLimit.realTimeSpending = 0;
+										foundUser.save();
+									}
 								}
-							);
+							}
+
+							if (
+								foundUser.spendingLimit.currentLimit.currentAmountLimit ===
+									null ||
+								foundUser.spendingLimit.currentLimit.currentAmountLimit >
+									foundUser.spendingLimit.realTimeSpending +
+										summedTransactions / 100
+							) {
+								await stripe.charges.create(
+									{
+										amount: summedTransactions,
+										currency: 'usd',
+										customer: foundUser.stripeData.customerId,
+										source: foundUser.stripeData.source,
+										description: 'Webhook charge'
+									},
+									async (err, charge) => {
+										if (err != null) {
+											return res.status(400).json({
+												msg: err
+											});
+										}
+
+										const newTransaction = new Transaction({
+											giverId: req.user.id,
+											amount: summedTransactions / 100,
+											receiverId: foundUser.selectedReceiverId,
+											bankId: foundUser.stripeData.source
+										});
+
+										await newTransaction.save();
+
+										return res.status(200).json(newTransaction);
+									}
+								);
+							}
 						}
 					}
 				);

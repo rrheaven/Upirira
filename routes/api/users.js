@@ -12,6 +12,12 @@ const emailTemplates = require('../../utils/email/emailTemplates');
 // Models
 const User = require('../../models/User');
 
+// utils
+const {
+	getBeginningOfWeekDate,
+	getBeginningOfMonthDate
+} = require('../../utils/dateFunctions');
+
 // @route GET api/users/user/register
 // @desc Register user & get token
 // @access Public
@@ -483,5 +489,91 @@ router.post(
 		}
 	}
 );
+
+// @route    POST users/user/spendingLimit
+// @desc     Set user's spending limit
+// @access   Private
+router.post(
+	'/user/spendingLimit',
+	[
+		auth,
+		[
+			check('amountLimit', 'Must provide amountLimit')
+				.not()
+				.isEmpty(),
+			check('timePeriodLimit', 'Must provide timePeriodLimit')
+				.not()
+				.isEmpty()
+		]
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const { amountLimit, timePeriodLimit } = req.body;
+		try {
+			const user = await User.findById(req.user.id);
+
+			if (!user) {
+				return res
+					.status(400)
+					.json({ errors: [{ msg: 'User does not exist' }] });
+			}
+
+			user.spendingLimit.currentLimit.currentAmountLimit = amountLimit;
+			user.spendingLimit.currentLimit.currentTimePeriodLimit = timePeriodLimit;
+
+			if (
+				user.spendingLimit.currentLimit.currentTimePeriodLimit === 'Per Week'
+			) {
+				user.spendingLimit.currentLimit.currentTimePeriod = getBeginningOfWeekDate();
+			} else if (
+				user.spendingLimit.currentLimit.currentTimePeriodLimit === 'Per Month'
+			) {
+				user.spendingLimit.currentLimit.currentTimePeriod = getBeginningOfMonthDate();
+			}
+
+			await user.save();
+
+			res.json(user.spendingLimit.currentLimit);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server Error');
+		}
+	}
+);
+
+// @route    DELETE users/user/spendingLimit
+// @desc     Delete user's spending limit
+// @access   Private
+router.delete('/user/spendingLimit', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id);
+
+		if (!user) {
+			return res.status(400).json({ errors: [{ msg: 'User does not exist' }] });
+		}
+
+		user.spendingLimit.perviousLimit.perviousAmountLimit =
+			user.spendingLimit.currentLimit.currentAmountLimit;
+		user.spendingLimit.perviousLimit.perviousTimePeriodLimit =
+			user.spendingLimit.currentLimit.currentTimePeriodLimit;
+		user.spendingLimit.perviousLimit.perviousTimePeriod =
+			user.spendingLimit.currentLimit.currentTimePeriod;
+
+		user.spendingLimit.currentLimit.currentAmountLimit = null;
+		user.spendingLimit.currentLimit.currentTimePeriodLimit = null;
+		user.spendingLimit.currentLimit.currentTimePeriod = null;
+		await user.save();
+
+		res.json('Removed user spending limit');
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+});
 
 module.exports = router;

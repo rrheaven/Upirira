@@ -54,6 +54,41 @@ const UserSchema = new mongoose.Schema({
 			type: String,
 			default: null
 		}
+	},
+	spendingLimit: {
+		currentLimit: {
+			currentAmountLimit: {
+				type: Number,
+				default: null
+			},
+			currentTimePeriodLimit: {
+				type: String,
+				default: null
+			},
+			currentTimePeriod: {
+				type: Date,
+				default: null
+			}
+		},
+		perviousLimit: {
+			perviousAmountLimit: {
+				type: Number,
+				default: null
+			},
+			perviousTimePeriodLimit: {
+				type: String,
+				default: null
+			},
+			perviousTimePeriod: {
+				type: Date,
+				default: null
+			}
+		},
+		realTimeSpending: {
+			type: Number,
+			default: 0.0,
+			required: true
+		}
 	}
 });
 

@@ -23,32 +23,40 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 			{loading ? (
 				<LoadingCard />
 			) : (
-				<Card className='shadow-sm p-3 my-3'>
-					<Container>
+				<Card className='shadow-sm my-3'>
+					<Container className='my-3'>
 						<Row>
 							<Col>
 								Today: $
-								{metrics.oneDayTotal && !loading
-									? metrics.oneDayTotal.toFixed(2)
-									: 0}
+								{metrics.oneDayTotal && !loading ? (
+									<b>{metrics.oneDayTotal.toFixed(2)}</b>
+								) : (
+									0
+								)}
 							</Col>
 							<Col>
 								This Week: $
-								{metrics.oneWeekTotal && !loading
-									? metrics.oneWeekTotal.toFixed(2)
-									: 0}
+								{metrics.oneWeekTotal && !loading ? (
+									<b>{metrics.oneWeekTotal.toFixed(2)}</b>
+								) : (
+									0
+								)}
 							</Col>
 							<Col>
 								This Month: $
-								{metrics.oneMonthTotal && !loading
-									? metrics.oneMonthTotal.toFixed(2)
-									: 0}
+								{metrics.oneMonthTotal && !loading ? (
+									<b>{metrics.oneMonthTotal.toFixed(2)}</b>
+								) : (
+									0
+								)}
 							</Col>
 							<Col>
 								This Year: $
-								{metrics.oneYearTotal && !loading
-									? metrics.oneYearTotal.toFixed(2)
-									: 0}
+								{metrics.oneYearTotal && !loading ? (
+									<b>{metrics.oneYearTotal.toFixed(2)}</b>
+								) : (
+									0
+								)}
 							</Col>
 						</Row>
 					</Container>

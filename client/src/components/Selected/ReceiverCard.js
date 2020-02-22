@@ -28,12 +28,13 @@ const ReceiverCard = ({
 		<Fragment>
 			<Card className='shadow-sm'>
 				<Card.Body>
-					<Container>
-						<Row>
+					<Container className={'container h-100'}>
+						<Row className={'h-100 justify-content-center align-items-center'}>
 							<Col sm={2}>
 								<Image src={receiverImage} rounded fluid />
 							</Col>
-							<Col sm={9}>
+							<br />
+							<Col sm={8} className={'my-4'}>
 								<Row>
 									<Card.Title>{receiverName}</Card.Title>
 								</Row>
@@ -41,13 +42,12 @@ const ReceiverCard = ({
 									<Card.Text>{receiverDescription}</Card.Text>
 								</Row>
 							</Col>
-							<Col sm={1}>
+							<Col sm={2}>
 								<Button
-									variant='link'
+									variant='danger btn-block'
 									onClick={() => deleteSelected(receiverId)}
-									className='mt-4 mb-1'
 								>
-									<FontAwesomeIcon icon={faTrashAlt} size='4x' color='red' />
+									Delete
 								</Button>
 							</Col>
 						</Row>

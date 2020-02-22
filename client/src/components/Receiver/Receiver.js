@@ -32,12 +32,12 @@ const Receiver = ({
 		<Fragment>
 			<Card className='my-3 shadow-sm'>
 				<Card.Body>
-					<Container>
-						<Row>
+					<Container className={'container h-100'}>
+						<Row className={'h-100 justify-content-center align-items-center'}>
 							<Col sm={2}>
 								<Image src={receiverImage} rounded fluid />
 							</Col>
-							<Col sm={9}>
+							<Col sm={8} className='my-4'>
 								<Row>
 									<Card.Title>{receiverName}</Card.Title>
 								</Row>
@@ -45,13 +45,12 @@ const Receiver = ({
 									<Card.Text>{receiverDescription}</Card.Text>
 								</Row>
 							</Col>
-							<Col sm={1}>
+							<Col sm={2}>
 								<Button
-									variant='link'
+									variant='primary btn-block'
 									onClick={() => handleClick(receiverId)}
-									className='mt-4 mb-1'
 								>
-									<FontAwesomeIcon icon={faPlusSquare} size='4x' />
+									Add
 								</Button>
 							</Col>
 						</Row>

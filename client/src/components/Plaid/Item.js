@@ -27,20 +27,27 @@ const Item = ({
 		<Fragment>
 			<Card className='shadow-sm'>
 				<Card.Body>
-					<Container>
-						<Row>
-							<Col sm={11}>
+					<Container className={'container h-100'}>
+						<Row className={'h-100 justify-content-center align-items-center'}>
+							<Col sm={10}>
 								<Card.Title className='my-2'>
 									{loading ? (
 										<h1>Loading</h1>
 									) : (
-										accountName !== null && <h3>{accountName}</h3>
+										accountName !== null && (
+											<h4>
+												Account: <b>{accountName}</b>
+											</h4>
+										)
 									)}
 								</Card.Title>
 							</Col>
-							<Col sm={1}>
-								<Button variant='link' onClick={() => deletePlaidItem(_id)}>
-									<FontAwesomeIcon icon={faTrashAlt} size='2x' color='red' />
+							<Col sm={2}>
+								<Button
+									variant='danger btn-block'
+									onClick={() => deletePlaidItem(_id)}
+								>
+									Delete
 								</Button>
 							</Col>
 						</Row>

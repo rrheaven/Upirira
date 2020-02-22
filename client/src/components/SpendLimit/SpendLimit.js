@@ -25,9 +25,9 @@ const SpendLimit = ({ auth: { loading, user }, clearSpendingLimit }) => {
 
 	const hasLimit = (
 		<Fragment>
-			<Container>
-				<Row>
-					<Col>
+			<Container className={'container h-100'}>
+				<Row className={'h-100 justify-content-center align-items-center'}>
+					<Col sm={5}>
 						<div className={'text-left'}>
 							{!loading &&
 								user.spendingLimit.currentLimit.currentAmountLimit !== null && (
@@ -39,7 +39,7 @@ const SpendLimit = ({ auth: { loading, user }, clearSpendingLimit }) => {
 						</div>
 					</Col>
 
-					<Col>
+					<Col sm={5}>
 						<div className={'text-left'}>
 							{!loading &&
 								user.spendingLimit.currentLimit.currentTimePeriodLimit !==
@@ -54,12 +54,10 @@ const SpendLimit = ({ auth: { loading, user }, clearSpendingLimit }) => {
 						</div>
 					</Col>
 
-					<Col>
-						<div className={'text-right'}>
-							<Button variant='danger' onClick={() => handleDelete()}>
-								Delete
-							</Button>
-						</div>
+					<Col sm={2}>
+						<Button variant='danger btn-block' onClick={() => handleDelete()}>
+							Delete
+						</Button>
 					</Col>
 				</Row>
 			</Container>

@@ -24,8 +24,8 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 				<LoadingCard />
 			) : (
 				<Card className='shadow-sm my-3'>
-					<Container className='my-3'>
-						<Row>
+					<Container className={'my-3 container h-100'}>
+						<Row className={'h-100 justify-content-center align-items-center'}>
 							<Col>
 								Today: $
 								{metrics.oneDayTotal && !loading ? (

@@ -26,23 +26,23 @@ const NavBar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 				</LogoNavBar>
 			</LinkContainer>
 			<Nav className='ml-auto'>
-				<LinkContainer to='/dash' className='mx-2'>
+				<LinkContainer to='/dash'>
 					<Nav.Link>Dash</Nav.Link>
 				</LinkContainer>
 
 				{user && !user.selectedReceiverId && (
-					<LinkContainer to='/search' className='mx-2'>
+					<LinkContainer to='/search'>
 						<Nav.Link>Search</Nav.Link>
 					</LinkContainer>
 				)}
 
 				{user && user.isReceiver && (
-					<LinkContainer to='/receiver' className='mx-2'>
+					<LinkContainer to='/receiver'>
 						<Nav.Link>Receiver</Nav.Link>
 					</LinkContainer>
 				)}
 
-				<LinkContainer to='/settings' className='mx-2'>
+				<LinkContainer to='/settings'>
 					<Nav.Link>Settings</Nav.Link>
 				</LinkContainer>
 				<Button
@@ -65,10 +65,10 @@ const NavBar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 				</LogoNavBar>
 			</LinkContainer>
 			<Nav className='ml-auto'>
-				<LinkContainer to='/login' className='mx-2'>
+				<LinkContainer to='/login'>
 					<Nav.Link>Login</Nav.Link>
 				</LinkContainer>
-				<LinkContainer to='/register' className='mx-2'>
+				<LinkContainer to='/register'>
 					<Nav.Link>Register</Nav.Link>
 				</LinkContainer>
 			</Nav>

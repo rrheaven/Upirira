@@ -31,7 +31,7 @@ const SpendLimit = ({ auth: { loading, user }, clearSpendingLimit }) => {
 						<div className={'text-left'}>
 							{!loading &&
 								user.spendingLimit.currentLimit.currentAmountLimit !== null && (
-									<h5>
+									<h5 styles='font-size:8vw;'>
 										Amount Limit:{' '}
 										<b>{user.spendingLimit.currentLimit.currentAmountLimit}</b>
 									</h5>
@@ -44,7 +44,7 @@ const SpendLimit = ({ auth: { loading, user }, clearSpendingLimit }) => {
 							{!loading &&
 								user.spendingLimit.currentLimit.currentTimePeriodLimit !==
 									null && (
-									<h5>
+									<h5 styles='font-size:8vw;'>
 										Time Period Limit:{' '}
 										<b>
 											{user.spendingLimit.currentLimit.currentTimePeriodLimit}

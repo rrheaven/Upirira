@@ -35,7 +35,7 @@ const Item = ({
 										<h1>Loading</h1>
 									) : (
 										accountName !== null && (
-											<h4>
+											<h4 styles='font-size:8vw;'>
 												Account: <b>{accountName}</b>
 											</h4>
 										)
@@ -47,7 +47,7 @@ const Item = ({
 									variant='danger btn-block'
 									onClick={() => deletePlaidItem(_id)}
 								>
-									Delete
+									<div styles='font-size:2vw;'>Delete</div>
 								</Button>
 							</Col>
 						</Row>

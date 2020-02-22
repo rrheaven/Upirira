@@ -20,10 +20,10 @@ import {
 	faShieldAlt
 } from '@fortawesome/free-solid-svg-icons';
 
+// Styled Components
 const PrimaryContainer = styled(Container)`
 	background: #007bff;
 `;
-
 const SecondaryContainer = styled(Container)`
 	background: #eceff1;
 `;

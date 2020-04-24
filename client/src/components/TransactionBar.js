@@ -68,15 +68,15 @@ const TransactionBar = ({ metrics: { metrics, loading }, setMetrics }) => {
 
 TransactionBar.propTypes = {
 	setMetrics: PropTypes.func.isRequired,
-	metrics: PropTypes.object.isRequired
+	metrics: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({
-	metrics: state.metrics
+const mapStateToProps = (state) => ({
+	metrics: state.metrics,
 });
 
 const mapActionsToProps = {
-	setMetrics
+	setMetrics,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(TransactionBar);

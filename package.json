@@ -23,7 +23,7 @@
 		"lodash": "^4.17.15",
 		"moment": "^2.24.0",
 		"mongoose": "^5.8.5",
-		"nodemailer": "^6.4.2",
+		"nodemailer": "^6.4.16",
 		"plaid": "^4.3.0",
 		"stripe": "^8.8.0",
 		"uuid": "^3.4.0"
